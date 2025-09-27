@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "178017041601",
+    "project_id": "capstone-swastik",
+    "storage_bucket": "capstone-swastik.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:178017041601:android:4cf319991ffea4483a6840",
+        "android_client_info": {
+          "package_name": "com.example.capstone_swastik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-woIZV1PYIayRzEqB2iiC9zBXyDid1yM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
