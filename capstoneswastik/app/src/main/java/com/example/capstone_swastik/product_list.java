@@ -11,11 +11,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 
 public class product_list extends AppCompatActivity {
 ArrayList<ProductModel> arrProducts = new ArrayList<>();
     RecyclerView recyclerView;
+    RecyclerProduct_listAdapter adapter;
+    FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +30,39 @@ ArrayList<ProductModel> arrProducts = new ArrayList<>();
 
         recyclerView = findViewById(R.id.recyclerProduct);
 
-        recyclerView.setLayoutManager(new GridLayoutManager(this,2));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        arrProducts.add(new ProductModel(R.drawable.img_p,"example1","2000"));
-        arrProducts.add(new ProductModel(R.drawable.img_p,"example2","4000"));
-        arrProducts.add(new ProductModel(R.drawable.img_p,"example3","6000"));
-        arrProducts.add(new ProductModel(R.drawable.img_p,"example4","8000"));
-
-        RecyclerProduct_listAdapter adapter = new RecyclerProduct_listAdapter(this , arrProducts);
+        adapter = new RecyclerProduct_listAdapter(this , arrProducts);
         recyclerView.setAdapter(adapter);
+
+        db = FirebaseFirestore.getInstance();
+
+        // Fetch products from Firestore
+        fetchProductsFromFirestore();
+    }
+    private void fetchProductsFromFirestore() {
+        db.collection("products")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        arrProducts.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String id = document.getId(); // ← auto-generated document ID
+                            String name = document.getString("name");
+                            String price = document.getString("price");
+                            String imageName = document.getString("image");
+                            String description = document.getString("description");
+
+                            // Convert drawable name to resource ID
+                            int imageRes = getResources().getIdentifier(imageName, "drawable", getPackageName());
+
+                            arrProducts.add(new ProductModel(id,imageRes, name, price,description));
+                        }
+                        adapter.notifyDataSetChanged(); // Refresh RecyclerView
+                    } else {
+                        // Handle errors
+                        System.out.println("Error fetching products: " + task.getException());
+                    }
+                });
     }
 }
