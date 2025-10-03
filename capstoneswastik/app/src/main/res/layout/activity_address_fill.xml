@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white"
+    tools:context=".Address_fill">
+
+    <!-- Heading -->
+    <TextView
+        android:layout_marginTop="40dp"
+        android:id="@+id/tvHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter Delivery Details"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_gravity="center"
+        android:layout_marginBottom="40dp" />
+
+    <!-- Customer Name -->
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Full Name"
+        android:textColor="@color/black"
+        android:textColorHint="#80000000"
+        android:inputType="textPersonName"
+        android:padding="12dp"
+        android:background="@drawable/edittext_black_border"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Phone Number -->
+    <EditText
+        android:id="@+id/etPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone Number"
+        android:inputType="phone"
+        android:textColorHint="#80000000"
+        android:maxLength="10"
+        android:padding="12dp"
+        android:textColor="@color/black"
+        android:background="@drawable/edittext_black_border"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Address -->
+    <EditText
+        android:id="@+id/etAddress"
+        android:layout_width="match_parent"
+        android:layout_height="100sp"
+        android:textColor="@color/black"
+        android:hint="Delivery Address"
+        android:inputType="textPostalAddress"
+        android:lines="3"
+        android:textColorHint="#80000000"
+        android:gravity="top|start"
+        android:padding="12dp"
+        android:background="@drawable/edittext_black_border"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Pin Code -->
+    <EditText
+        android:id="@+id/etPin"
+        android:textColorHint="#80000000"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Pin Code"
+        android:textColor="@color/black"
+        android:inputType="number"
+        android:maxLength="6"
+        android:padding="12dp"
+        android:background="@drawable/edittext_black_border"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Additional Info -->
+    <EditText
+        android:id="@+id/etInfo"
+        android:textColorHint="#80000000"
+        android:layout_width="match_parent"
+        android:textColor="@color/black"
+        android:layout_height="wrap_content"
+        android:hint="Additional Info (Optional)"
+        android:inputType="text"
+        android:padding="12dp"
+        android:background="@drawable/edittext_black_border"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Submit Button -->
+    <Button
+        android:id="@+id/btnSubmit"
+        android:textColorHint="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:layout_marginTop="20dp"
+        android:textSize="20sp"
+        android:backgroundTint="#18D527"
+        android:textColor="@android:color/white"/>
+</LinearLayout>
