@@ -49,7 +49,6 @@ public class RecyclerProduct_listAdapter extends RecyclerView.Adapter<RecyclerPr
             intent.putExtra("description", arrProducts.get(position).description);
             // Required if context is not an Activity
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
             context.startActivity(intent);
         });
     }

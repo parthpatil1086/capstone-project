@@ -22,9 +22,7 @@ public class Product_details extends AppCompatActivity {
 
     TextView textViewProductName, textViewProductPrice, textViewProductDescription;
     ImageView imageViewProductimg;
-
     Button btnBuyNow;
-
     FirebaseFirestore db;
 
     @Override
@@ -46,19 +44,22 @@ public class Product_details extends AppCompatActivity {
 
         String description = getIntent().getStringExtra("description");
 
-        textViewProductName.setText("Product Name : " + name);
+        textViewProductName.setText("Product Name :" + name);
         textViewProductPrice.setText("Product Price: " + price);
         imageViewProductimg.setImageResource(img);
         textViewProductDescription.setText(description != null ? description : "Loading description...");
 
-        btnBuyNow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), CheckoutProduct.class);
-                startActivity(intent);
-            }
-        });
+        btnBuyNow.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), CheckoutProduct.class);
 
+            // Pass product info to CheckoutProduct
+            intent.putExtra("name", name);
+            intent.putExtra("price", price);
+            intent.putExtra("img", img);
+            intent.putExtra("description", description);
+
+            startActivity(intent);
+        });
     }
 }
 

@@ -47,22 +47,24 @@ ArrayList<ProductModel> arrProducts = new ArrayList<>();
                     if (task.isSuccessful()) {
                         arrProducts.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String id = document.getId(); // ← auto-generated document ID
+                            String id = document.getId();
                             String name = document.getString("name");
                             String price = document.getString("price");
-                            String imageName = document.getString("image");
+                            String imageName = document.getString("image"); // should be like "car1"
                             String description = document.getString("description");
 
                             // Convert drawable name to resource ID
                             int imageRes = getResources().getIdentifier(imageName, "drawable", getPackageName());
-
-                            arrProducts.add(new ProductModel(id,imageRes, name, price,description));
+                            if(imageRes == 0){
+                                imageRes = R.drawable.placeholder; // fallback
+                            }
+                            arrProducts.add(new ProductModel(id, imageRes, name, price, description));
                         }
-                        adapter.notifyDataSetChanged(); // Refresh RecyclerView
+                        adapter.notifyDataSetChanged();
                     } else {
-                        // Handle errors
                         System.out.println("Error fetching products: " + task.getException());
                     }
                 });
     }
+
 }
