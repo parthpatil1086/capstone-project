@@ -23,7 +23,6 @@ public class Product_details extends AppCompatActivity {
     TextView textViewProductName, textViewProductPrice, textViewProductDescription;
     ImageView imageViewProductimg;
     Button btnBuyNow;
-    FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Product Image -->
+            <ImageView
+                android:id="@+id/imgProduct"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/buffer_load"
+                android:scaleType="centerCrop"
+                android:background="#EEEEEE"
+                android:padding="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="50dp"
+                android:adjustViewBounds="true" />
+
+            <!-- Card Container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="#FFFFFF"
+                android:elevation="4dp"
+                android:layout_margin="6dp">
+
+                <!-- Product Name -->
+                <TextView
+                    android:id="@+id/tvPName"
+                    android:text="Product Name"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:layout_marginBottom="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <!-- Price -->
+                <TextView
+                    android:textColor="@color/black"
+                    android:id="@+id/tvPPrice"
+                    android:text="Price: ₹0"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <!-- Quantity -->
+                <TextView
+                    android:id="@+id/tvQty"
+                    android:text="Quantity: 1"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <!-- Total Amount -->
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:text="Total Amount: ₹0"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="17sp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <!-- Status -->
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:text="Status: Pending"
+                    android:textSize="16sp"
+                    android:textColor="#009688"
+                    android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <!-- Order Date -->
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:text="Date: --/--/----"
+                    android:textSize="15sp"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <!-- Address -->
+                <TextView
+                    android:id="@+id/tvAddress"
+                    android:text="Address: --"
+                    android:textSize="16sp"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Centered ProgressBar Overlay -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminate="true"/>
+
+</FrameLayout>

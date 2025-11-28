@@ -51,6 +51,8 @@ public class Address_fill extends AppCompatActivity {
         int productPrice = getIntent().getIntExtra("price", 0);
         int quantity = getIntent().getIntExtra("quantity", 0);
         int totalAmount = getIntent().getIntExtra("totalValue", 0);
+        int img = getIntent().getIntExtra("img", R.drawable.shree_swastik_default);
+
 
         tvProductName.setText("Product: " + productName);
         tvProductPrice.setText("Price: ₹ " + productPrice);
@@ -78,6 +80,7 @@ public class Address_fill extends AppCompatActivity {
             orderData.put("productPrice", productPrice);
             orderData.put("quantity", quantity);
             orderData.put("totalAmount", totalAmount);
+            orderData.put("image",img);
 
             orderData.put("name", inputName);
             orderData.put("phone", inputPhone);

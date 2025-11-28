@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CheckoutProduct extends AppCompatActivity {
 
-    TextView textViewProductPrice, textViewProductName, totalprice;
+    TextView textViewProductPrice, textViewProductName,totalprice;
     ImageView imageViewProductimg;
     EditText editTextQuantity;
     Button btnNext;

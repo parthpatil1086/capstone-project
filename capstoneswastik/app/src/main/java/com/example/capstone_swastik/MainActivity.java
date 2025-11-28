@@ -28,7 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 public class MainActivity extends AppCompatActivity {
 
     TextView user_name,user_number,user_email ;
-    Button btnlogout,browse_collection;
+    Button btnlogout,browse_collection,btnMyorder;
     String userID;
     FirebaseAuth auth;
     FirebaseFirestore ftstore;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnlogout = findViewById(R.id.btnlogout);
         browse_collection = findViewById(R.id.browse_collection);
+        btnMyorder =findViewById(R.id.btnMyorder);
 
         userID = auth.getCurrentUser().getUid();
 
@@ -77,6 +78,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
               //  Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), product_list.class);
+                startActivity(intent);
+//
+            }
+        });
+
+        btnMyorder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //  Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), MyOrdersActivity.class);
                 startActivity(intent);
 //
             }

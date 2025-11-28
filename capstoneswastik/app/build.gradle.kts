@@ -1,3 +1,6 @@
+import org.gradle.kotlin.dsl.annotationProcessor
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
@@ -38,14 +41,19 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
-    // ✅ Firebase BOM to keep versions compatible
+    // Firebase BOM
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
 
-    // Firebase dependencies (no version needed, BOM manages it)
+    // Firebase dependencies
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+
+    // Glide for Kotlin DSL
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
+

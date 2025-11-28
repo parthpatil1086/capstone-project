@@ -28,6 +28,8 @@
         <activity
             android:name=".product_list"
             android:exported="false" />
+        <activity android:name=".MyOrdersActivity"/>
+        <activity android:name=".OrderDetailsActivity"/>
         <activity
             android:name=".login"
             android:exported="true"
