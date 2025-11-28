@@ -2,16 +2,38 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:background="#EBE8E8"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".product_list">
+    android:orientation="vertical"
+    android:background="#EBE8E8"
+    android:paddingTop="16dp">
 
+    <!-- Header / Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Available Products"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:gravity="center"
+        android:background="#18D527"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:elevation="4dp"
+        android:clipToPadding="false"/>
+
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="80dp"
         android:id="@+id/recyclerProduct"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:clipToPadding="false"/>
 </LinearLayout>

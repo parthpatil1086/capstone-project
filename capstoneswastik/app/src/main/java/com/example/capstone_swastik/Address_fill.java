@@ -53,7 +53,6 @@ public class Address_fill extends AppCompatActivity {
         int totalAmount = getIntent().getIntExtra("totalValue", 0);
         int img = getIntent().getIntExtra("img", R.drawable.shree_swastik_default);
 
-
         tvProductName.setText("Product: " + productName);
         tvProductPrice.setText("Price: ₹ " + productPrice);
         tvQuantity.setText("Quantity: " + quantity);
@@ -67,8 +66,40 @@ public class Address_fill extends AppCompatActivity {
             String inputPin = etPin.getText().toString().trim();
             String inputInfo = etInfo.getText().toString().trim();
 
-            if(inputName.isEmpty() || inputPhone.isEmpty() || inputAddress.isEmpty() || inputPin.isEmpty()) {
-                Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
+            // Validation checks
+            if(inputName.isEmpty()) {
+                etName.setError("Please enter your name");
+                etName.requestFocus();
+                return;
+            }
+
+            if(inputPhone.isEmpty()) {
+                etPhone.setError("Please enter your phone number");
+                etPhone.requestFocus();
+                return;
+            }
+
+            if(!inputPhone.matches("\\d{10}")) { // exactly 10 digits
+                etPhone.setError("Phone number must be 10 digits");
+                etPhone.requestFocus();
+                return;
+            }
+
+            if(inputAddress.isEmpty()) {
+                etAddress.setError("Please enter your address");
+                etAddress.requestFocus();
+                return;
+            }
+
+            if(inputPin.isEmpty()) {
+                etPin.setError("Please enter PIN code");
+                etPin.requestFocus();
+                return;
+            }
+
+            if(!inputPin.matches("\\d{6}")) { // exactly 6 digits
+                etPin.setError("PIN code must be 6 digits");
+                etPin.requestFocus();
                 return;
             }
 
@@ -80,7 +111,7 @@ public class Address_fill extends AppCompatActivity {
             orderData.put("productPrice", productPrice);
             orderData.put("quantity", quantity);
             orderData.put("totalAmount", totalAmount);
-            orderData.put("image",img);
+            orderData.put("image", img);
 
             orderData.put("name", inputName);
             orderData.put("phone", inputPhone);

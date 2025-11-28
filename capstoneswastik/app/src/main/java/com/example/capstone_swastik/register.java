@@ -86,14 +86,21 @@ public class register extends AppCompatActivity {
                 String name = editTextName.getText().toString().trim();
                 String password = editTextPassword.getText().toString().trim();
 
-                // Input validation
+                // Validate Name
                 if (TextUtils.isEmpty(name)) {
                     editTextName.setError("Enter Name");
                     editTextName.requestFocus();
                     return;
                 }
+
                 if (TextUtils.isEmpty(number)) {
-                    editTextNumber.setError("Enter Number");
+                    editTextNumber.setError("Enter Phone Number");
+                    editTextNumber.requestFocus();
+                    return;
+                }
+
+                if (!number.matches("\\d{10}")) {
+                    editTextNumber.setError("Enter a valid 10-digit phone number");
                     editTextNumber.requestFocus();
                     return;
                 }
@@ -103,7 +110,6 @@ public class register extends AppCompatActivity {
                     editTextEmail.requestFocus();
                     return;
                 }
-
                 if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                     editTextEmail.setError("Enter a valid Email");
                     editTextEmail.requestFocus();
@@ -115,7 +121,6 @@ public class register extends AppCompatActivity {
                     editTextPassword.requestFocus();
                     return;
                 }
-
                 if (password.length() < 6) {
                     editTextPassword.setError("Password must be at least 6 characters");
                     editTextPassword.requestFocus();

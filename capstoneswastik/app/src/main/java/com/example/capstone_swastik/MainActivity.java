@@ -2,8 +2,11 @@ package com.example.capstone_swastik;
 
 import static android.content.ContentValues.TAG;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +17,8 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -27,8 +32,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView user_name,user_number,user_email ;
-    Button btnlogout,browse_collection,btnMyorder;
+    private static final int NOTIFICATION_PERMISSION_CODE = 101;
+
+    TextView user_name, user_number, user_email;
+    Button btnlogout, browse_collection, btnMyorder;
     String userID;
     FirebaseAuth auth;
     FirebaseFirestore ftstore;
@@ -43,10 +50,9 @@ public class MainActivity extends AppCompatActivity {
         ftstore = FirebaseFirestore.getInstance();
 
         user_name = findViewById(R.id.user_name);
-
         btnlogout = findViewById(R.id.btnlogout);
         browse_collection = findViewById(R.id.browse_collection);
-        btnMyorder =findViewById(R.id.btnMyorder);
+        btnMyorder = findViewById(R.id.btnMyorder);
 
         userID = auth.getCurrentUser().getUid();
 
@@ -56,10 +62,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
                 if (documentSnapshot != null && documentSnapshot.exists()) {
-                    user_name.setText("Hey ,"+documentSnapshot.getString("name"));
+                    user_name.setText("Hey ," + documentSnapshot.getString("name"));
                 }
             }
         });
+
+        // ===========================
+        // ✅ Request notification permission on first launch (Android 13+)
+        // ===========================
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_CODE);
+            }
+        }
 
         btnlogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,27 +88,36 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-
         });
 
         browse_collection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              //  Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), product_list.class);
                 startActivity(intent);
-//
             }
         });
 
         btnMyorder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //  Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), MyOrdersActivity.class);
                 startActivity(intent);
-//
             }
         });
+    }
+
+    // Handle runtime permission result (optional logging)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == NOTIFICATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Notification permission granted.");
+            } else {
+                Log.d(TAG, "Notification permission denied.");
+            }
+        }
     }
 }

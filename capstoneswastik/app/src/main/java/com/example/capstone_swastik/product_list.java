@@ -58,7 +58,11 @@ ArrayList<ProductModel> arrProducts = new ArrayList<>();
                             if(imageRes == 0){
                                 imageRes = R.drawable.placeholder; // fallback
                             }
+                            // Manually format price
+                            String displayPrice = "₹ " + price + " per kg";
+
                             arrProducts.add(new ProductModel(id, imageRes, name, price, description));
+
                         }
                         adapter.notifyDataSetChanged();
                     } else {

@@ -35,23 +35,27 @@ public class RecyclerProduct_listAdapter extends RecyclerView.Adapter<RecyclerPr
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.imgProduct.setImageResource(arrProducts.get(position).img);
-        holder.textProdcutName.setText(arrProducts.get(position).p_name);
-        holder.textProductPrice.setText((arrProducts.get(position).p_price));
+        ProductModel product = arrProducts.get(position);
 
-        // Button click listener
+        holder.imgProduct.setImageResource(product.img);
+        holder.textProdcutName.setText(product.displayName);   // use displayName
+        holder.textProductPrice.setText(product.displayPrice); // use displayPrice
+
         holder.btnBuy.setOnClickListener(v -> {
             Intent intent = new Intent(context, Product_details.class);
-            intent.putExtra("name", arrProducts.get(position).p_name);
-            intent.putExtra("price", arrProducts.get(position).p_price);
-            intent.putExtra("img", arrProducts.get(position).img);
-            intent.putExtra("docId", arrProducts.get(position).id);
-            intent.putExtra("description", arrProducts.get(position).description);
-            // Required if context is not an Activity
+
+            // Pass raw values for calculations & database
+            intent.putExtra("name", product.rawName);
+            intent.putExtra("price", product.rawPrice);
+            intent.putExtra("img", product.img);
+            intent.putExtra("docId", product.id);
+            intent.putExtra("description", product.description);
+
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         });
     }
+
 
     @Override
     public int getItemCount() {

@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -21,7 +23,7 @@
             android:exported="false" />
         <activity
             android:name=".Address_fill"
-            android:exported="false" />
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity
             android:name=".Product_details"
             android:exported="false" />
