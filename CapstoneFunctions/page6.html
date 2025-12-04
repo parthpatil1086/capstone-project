@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Management</title>
+
+    <style>
+
+        body {
+            background: #f4f6f9;
+            font-family: Arial;
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 40px auto;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f1f1f1;
+        }
+
+        .status-btn {
+            padding: 7px 12px;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .pending { background: #ffc107; }
+        .approved { background: #007bff; }
+        .delivery { background: #17a2b8; }
+        .delivered { background: #28a745; }
+        .cancel { background: #dc3545; }
+
+        /* Notification */
+        #alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 22px;
+            background: #28a745;
+            color: #fff;
+            border-radius: 8px;
+            display: none;
+            z-index: 999;
+        }
+
+        .alert-error {
+            background: #dc3545;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Notification -->
+<div id="alert"></div>
+
+<div class="container">
+
+    <h2>Order Status Management</h2>
+
+    <div class="card">
+
+        <table>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Status</th>
+                <th>Update</th>
+            </tr>
+
+            <tr id="row1">
+                <td>#ORD1001</td>
+                <td>Rohit Desai</td>
+                <td>Jaggery Powder</td>
+                <td>10 kg</td>
+                <td id="status1"><span class="status-btn pending">Pending</span></td>
+                <td>
+                    <button class="status-btn approved" onclick="updateStatus('status1', 'Approved')">Approve</button>
+                    <button class="status-btn delivery" onclick="updateStatus('status1', 'Out for Delivery')">Out for Delivery</button>
+                    <button class="status-btn delivered" onclick="updateStatus('status1', 'Delivered')">Delivered</button>
+                    <button class="status-btn cancel" onclick="updateStatus('status1', 'Cancelled')">Cancel</button>
+                </td>
+            </tr>
+
+            <tr id="row2">
+                <td>#ORD1002</td>
+                <td>Sheetal More</td>
+                <td>Jaggery Block</td>
+                <td>5 kg</td>
+                <td id="status2"><span class="status-btn approved">Approved</span></td>
+                <td>
+                    <button class="status-btn delivery" onclick="updateStatus('status2', 'Out for Delivery')">Out for Delivery</button>
+                    <button class="status-btn delivered" onclick="updateStatus('status2', 'Delivered')">Delivered</button>
+                    <button class="status-btn cancel" onclick="updateStatus('status2', 'Cancelled')">Cancel</button>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+function showAlert(msg, error = false) {
+    let alertBox = document.getElementById("alert");
+    alertBox.innerText = msg;
+
+    alertBox.classList.remove("alert-error");
+    if (error) alertBox.classList.add("alert-error");
+
+    alertBox.style.display = "block";
+    setTimeout(() => alertBox.style.display = "none", 2500);
+}
+
+function updateStatus(elementId, newStatus) {
+
+    let element = document.getElementById(elementId);
+
+    let colorClass = "pending";
+
+    if (newStatus === "Approved") colorClass = "approved";
+    if (newStatus === "Out for Delivery") colorClass = "delivery";
+    if (newStatus === "Delivered") colorClass = "delivered";
+    if (newStatus === "Cancelled") colorClass = "cancel";
+
+    element.innerHTML = `<span class="status-btn ${colorClass}">${newStatus}</span>`;
+
+    showAlert("Status updated to: " + newStatus);
+}
+
+</script>
+
+</body>
+</html>

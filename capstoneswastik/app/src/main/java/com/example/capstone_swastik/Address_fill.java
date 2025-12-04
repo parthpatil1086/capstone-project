@@ -120,7 +120,7 @@ public class Address_fill extends AppCompatActivity {
             orderData.put("info", inputInfo);
             orderData.put("timestamp", System.currentTimeMillis());
 
-            db.collection("Orders")
+            db.collection("orders")
                     .add(orderData)
                     .addOnSuccessListener(doc -> {
                         // Pass info to success screen

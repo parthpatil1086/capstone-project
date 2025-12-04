@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Management – Sugarcane Supplies</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+h1, h2 { text-align: center; color: #2e7d32; }
+.container { width: 100%; max-width: 1200px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; word-wrap: break-word; }
+th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; vertical-align: middle; }
+th { background: #f1f1f1; }
+.status-btn { padding: 6px 12px; border-radius: 6px; color: #fff; display: inline-block; font-size: 13px; text-align: center; width: 100%; box-sizing: border-box; }
+.pending { background: #ffc107; }
+.approved { background: #007bff; }
+.delivery { background: #17a2b8; }
+.delivered { background: #28a745; }
+.cancel { background: #dc3545; }
+button.update-btn { padding: 5px 10px; border: none; border-radius: 6px; margin: 2px 2px; color: #fff; cursor: pointer; font-size: 12px; white-space: nowrap; }
+button.approve { background: #007bff; }
+button.delivery { background: #17a2b8; }
+button.delivered { background: #28a745; }
+button.cancel { background: #dc3545; }
+#alert { position: fixed; top: 20px; right: 20px; padding: 15px 22px; background: #28a745; color: #fff; border-radius: 8px; display: none; z-index: 999; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.alert-error { background: #dc3545; }
+</style>
+</head>
+<body>
+
+<h1>Order Management – Sugarcane Supplies</h1>
+<div id="alert"></div>
+
+<div class="container">
+    <h2>Orders</h2>
+    <table>
+        <thead id="tableHead">
+            <tr></tr>
+        </thead>
+        <tbody id="ordersTableBody"></tbody>
+    </table>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
+  authDomain: "capstone-swastik.firebaseapp.com",
+  projectId: "capstone-swastik",
+  storageBucket: "capstone-swastik.appspot.com",
+  messagingSenderId: "178017041601",
+  appId: "1:178017041601:web:342d8cfe9938b6813a6840"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function showAlert(msg, isError=false) {
+    const alertBox = document.getElementById("alert");
+    alertBox.innerText = msg;
+    alertBox.classList.toggle("alert-error", isError);
+    alertBox.style.display = "block";
+    setTimeout(() => alertBox.style.display = "none", 2500);
+}
+
+function getStatusClass(status) {
+    switch(status) {
+      case "Approved": return "approved";
+      case "Out for Delivery": return "delivery";
+      case "Delivered": return "delivered";
+      case "Cancelled": return "cancel";
+      default: return "pending";
+    }
+}
+
+// Fields order
+const fieldOrder = [
+    { key: "name", label: "Name" },
+    { key: "phone", label: "Phone" },
+    { key: "productName", label: "Product Name" },
+    { key: "quantity", label: "Quantity" },
+    { key: "productPrice", label: "Price" },
+    { key: "totalAmount", label: "Total Amount" },
+    { key: "timestamp", label: "Date/Time" },
+    { key: "address", label: "Address" },
+    { key: "pin", label: "PIN" },
+    { key: "info", label: "Additional Info" },
+    { key: "status", label: "Status" },
+    { key: "update", label: "Update" }
+];
+
+function formatTimestamp(ts) {
+    if(!ts) return "-";
+    let date = ts.toDate ? ts.toDate() : new Date(ts);
+    return date.toLocaleString();
+}
+
+function loadOrders() {
+    const tableBody = document.getElementById("ordersTableBody");
+    const tableHeadRow = document.getElementById("tableHead").querySelector("tr");
+
+    db.collection("orders").orderBy("timestamp","desc").onSnapshot(snapshot => {
+        tableBody.innerHTML = "";
+        tableHeadRow.innerHTML = "";
+
+        // Table header
+        fieldOrder.forEach(f => {
+            const th = document.createElement("th");
+            th.textContent = f.label;
+            tableHeadRow.appendChild(th);
+        });
+
+        snapshot.forEach(doc => {
+            const order = doc.data();
+            const userId = doc.id;
+            const status = order.status || "Pending";
+            const row = document.createElement("tr");
+
+            fieldOrder.forEach(f => {
+                const td = document.createElement("td");
+
+                switch(f.key) {
+                    case "status":
+                        td.innerHTML = `<span class="status-btn ${getStatusClass(status)}">${status}</span>`;
+                        break;
+
+                    case "update":
+                        let buttons = '';
+                        switch(status) {
+                            case "Pending":
+                                buttons += `<button class="update-btn approve" onclick="updateOrder('${userId}','Approved', this)">Approve</button>`;
+                                buttons += `<button class="update-btn cancel" onclick="updateOrder('${userId}','Cancelled', this)">Cancel</button>`;
+                                break;
+                            case "Approved":
+                                buttons += `<button class="update-btn delivery" onclick="updateOrder('${userId}','Out for Delivery', this)">Out for Delivery</button>`;
+                                buttons += `<button class="update-btn cancel" onclick="updateOrder('${userId}','Cancelled', this)">Cancel</button>`;
+                                break;
+                            case "Out for Delivery":
+                                buttons += `<button class="update-btn delivered" onclick="updateOrder('${userId}','Delivered', this)">Delivered</button>`;
+                                buttons += `<button class="update-btn cancel" onclick="updateOrder('${userId}','Cancelled', this)">Cancel</button>`;
+                                break;
+                            case "Delivered":
+                            case "Cancelled":
+                                buttons = ''; // final status
+                                break;
+                        }
+                        td.innerHTML = buttons;
+                        break;
+
+                    case "timestamp":
+                        td.textContent = formatTimestamp(order[f.key]);
+                        break;
+
+                    case "totalAmount":
+                        td.textContent = order.totalAmount !== undefined ? order.totalAmount : ((order.quantity || 0) * (order.productPrice || 0));
+                        break;
+
+                    default:
+                        td.textContent = order[f.key] !== undefined ? order[f.key] : "-";
+                }
+
+                row.appendChild(td);
+            });
+
+            tableBody.appendChild(row);
+        });
+    });
+}
+
+function updateOrder(userId, newStatus, buttonElem) {
+    db.collection("orders").doc(userId).update({ status: newStatus })
+    .then(() => {
+        showAlert(`Order status updated to: ${newStatus}`);
+        if(buttonElem) buttonElem.style.display = 'none';
+        const statusSpan = document.querySelector(`#ordersTableBody tr td span.status-btn:nth-child(1)`);
+        if(statusSpan) {
+            const row = buttonElem.closest("tr");
+            const statusCell = row.querySelector("td span.status-btn");
+            if(statusCell) {
+                statusCell.innerText = newStatus;
+                statusCell.className = `status-btn ${getStatusClass(newStatus)}`;
+            }
+        }
+    })
+    .catch(err => showAlert(`Error: ${err.message}`, true));
+}
+
+loadOrders();
+</script>
+
+</body>
+</html>

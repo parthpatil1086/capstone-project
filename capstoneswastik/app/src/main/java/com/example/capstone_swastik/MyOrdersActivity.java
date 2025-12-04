@@ -61,7 +61,7 @@ public class MyOrdersActivity extends AppCompatActivity {
 
         String uid = auth.getCurrentUser().getUid();
 
-        db.collection("Orders")
+        db.collection("orders")
                 .whereEqualTo("userID", uid)
                 .get()
                 .addOnSuccessListener(query -> {

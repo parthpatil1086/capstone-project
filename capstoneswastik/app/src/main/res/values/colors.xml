@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background">#FFF8F0</color>    <!-- soft cream -->
+    <color name="tagGreen">#6FA04A</color>      <!-- tag green -->
+    <color name="buttonBackground">#FFFFFF</color>
 </resources>

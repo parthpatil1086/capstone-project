@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
@@ -16,6 +15,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Capstoneswastik">
         <activity
+            android:name=".ViewRequestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SupplierPage"
+            android:exported="false" />
+        <activity
+            android:name=".register_supplier"
+            android:exported="false" />
+        <activity
+            android:name=".BecomeSupplier"
+            android:exported="false" />
+        <activity
+            android:name=".NotificationStoreActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity
             android:name=".OrderSuccessActivity"
             android:exported="false" />
         <activity
@@ -23,15 +46,15 @@
             android:exported="false" />
         <activity
             android:name=".Address_fill"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".Product_details"
             android:exported="false" />
         <activity
             android:name=".product_list"
             android:exported="false" />
-        <activity android:name=".MyOrdersActivity"/>
-        <activity android:name=".OrderDetailsActivity"/>
+        <activity android:name=".MyOrdersActivity" />
+        <activity android:name=".OrderDetailsActivity" />
         <activity
             android:name=".login"
             android:exported="true"

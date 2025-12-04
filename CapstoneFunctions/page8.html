@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Supplier & Customer List – Sugarcane Supplies</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f1f8e9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #2e7d32;
+    }
+
+    .container {
+        width: 90%;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px #a5d6a7;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 15px 0;
+        border: 1px solid #9ccc65;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #c8e6c9;
+    }
+
+    th {
+        background: #a5d6a7;
+        color: #1b5e20;
+    }
+
+    button {
+        padding: 6px 15px;
+        background: #e53935;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #b71c1c;
+    }
+</style>
+</head>
+<body>
+
+<h1>Supplier & Customer List</h1>
+
+<div class="container">
+
+    <!-- Search Filter -->
+    <input type="text" id="searchBox" placeholder="Search by name, phone, address..." onkeyup="searchRecords()">
+
+    <!-- Supplier Table -->
+    <h2>Supplier List</h2>
+    <table id="supplierTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Payment Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JS inserts rows here -->
+        </tbody>
+    </table>
+
+    <!-- Customer Table -->
+    <h2>Customer List</h2>
+    <table id="customerTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Purchase History</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JS inserts rows here -->
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+// ========================= Supplier & Customer Sample Data ==========================
+let suppliers = [
+    { name: "Farmer A", phone: "9876543210", address: "Village 1", status: "Paid" },
+    { name: "Farmer B", phone: "9123456780", address: "Village 2", status: "Pending" },
+    { name: "Farmer C", phone: "9988776655", address: "Village 3", status: "Paid" }
+];
+
+let customers = [
+    { name: "Customer X", phone: "8885552221", address: "Town A", history: "5 Purchases" },
+    { name: "Customer Y", phone: "9090909090", address: "Town B", history: "2 Purchases" },
+    { name: "Customer Z", phone: "7774441112", address: "Town C", history: "8 Purchases" }
+];
+
+// ========================= Display Tables ==========================
+function loadTables() {
+
+    // Supplier Table
+    let sTable = document.querySelector("#supplierTable tbody");
+    sTable.innerHTML = "";
+    suppliers.forEach((s, index) => {
+        sTable.innerHTML += `
+            <tr>
+                <td>${s.name}</td>
+                <td>${s.phone}</td>
+                <td>${s.address}</td>
+                <td>${s.status}</td>
+                <td><button onclick="deleteSupplier(${index})">Delete</button></td>
+            </tr>`;
+    });
+
+    // Customer Table
+    let cTable = document.querySelector("#customerTable tbody");
+    cTable.innerHTML = "";
+    customers.forEach((c, index) => {
+        cTable.innerHTML += `
+            <tr>
+                <td>${c.name}</td>
+                <td>${c.phone}</td>
+                <td>${c.address}</td>
+                <td>${c.history}</td>
+                <td><button onclick="deleteCustomer(${index})">Delete</button></td>
+            </tr>`;
+    });
+}
+
+loadTables();
+
+// ========================= Delete Functions ==========================
+function deleteSupplier(index) {
+    if (confirm("Are you sure you want to delete this supplier?")) {
+        suppliers.splice(index, 1);
+        loadTables();
+    }
+}
+
+function deleteCustomer(index) {
+    if (confirm("Are you sure you want to delete this customer?")) {
+        customers.splice(index, 1);
+        loadTables();
+    }
+}
+
+// ========================= Search Filter ==========================
+function searchRecords() {
+    let query = document.getElementById("searchBox").value.toLowerCase();
+
+    // Filter supplier rows
+    document.querySelectorAll("#supplierTable tbody tr").forEach(row => {
+        let text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? "" : "none";
+    });
+
+    // Filter customer rows
+    document.querySelectorAll("#customerTable tbody tr").forEach(row => {
+        let text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? "" : "none";
+    });
+}
+</script>
+
+</body>
+</html>

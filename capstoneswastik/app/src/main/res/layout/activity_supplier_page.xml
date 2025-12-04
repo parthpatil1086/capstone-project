@@ -1,0 +1,169 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Background Image -->
+    <ImageView
+        android:id="@+id/bgImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background_supplier"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true" />
+
+    <!-- Foreground Scrollable Form -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_marginTop="90dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:elevation="10dp"
+
+            android:layout_gravity="center_horizontal"
+            android:clipToPadding="false">
+
+            <!-- Supplier Name -->
+            <TextView
+                android:id="@+id/tvSupplierWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sugarcane Supplier Request"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Product Name -->
+            <TextView
+                android:text="Product Name"
+                android:textColor="#1B5E20"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Sugarcane"
+                android:text="Sugarcane"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"
+                android:enabled="false"
+                android:focusable="false"
+                android:background="@drawable/rounded_edittext"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Area of Field -->
+            <TextView
+                android:text="Area of Field (in acres)"
+                android:textColor="#1B5E20"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etQuantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter area (e.g., 5 acres)"
+                android:inputType="numberDecimal"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"
+                android:background="@drawable/rounded_edittext"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Growth Months -->
+            <TextView
+                android:text="Growth Months"
+                android:textColor="#1B5E20"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etGrowthMonths"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter months (e.g., 10)"
+                android:inputType="number"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"
+                android:background="@drawable/rounded_edittext"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Location -->
+            <TextView
+                android:text="Location (Village/District)"
+                android:textColor="#1B5E20"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/etLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter village/city/district"
+                android:inputType="text"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/black"
+                android:background="@drawable/rounded_edittext"
+                android:layout_marginBottom="20dp" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Submit Button -->
+    <Button
+        android:id="@+id/btnSubmitRequest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/statusbtn"
+        android:layout_marginBottom="5dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:backgroundTint="#4CAF50"
+        android:elevation="10dp"
+        android:text="SUBMIT"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/statusbtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="5dp"
+        android:textSize="18sp"
+        android:text="View Status"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#4CAF50"
+        android:elevation="10dp" />
+
+</RelativeLayout>
