@@ -6,6 +6,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -38,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int NOTIFICATION_PERMISSION_CODE = 101;
 
-    TextView user_name, user_number, user_email;
-    Button btnlogout, browse_collection, btnMyorder,btnNotifications,btn_supplier;
+    TextView user_name;
+    Button btnlogout, browse_collection, btnMyorder, btnNotifications, btn_supplier;
     String userID;
     FirebaseAuth auth;
     FirebaseFirestore ftstore;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
                 if (documentSnapshot != null && documentSnapshot.exists()) {
-                    user_name.setText("Hey ," + documentSnapshot.getString("name"));
+                    user_name.setText("Hey, " + documentSnapshot.getString("name"));
                 }
             }
         });
@@ -82,56 +83,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        btnlogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-                Toast.makeText(MainActivity.this, "logged out", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getApplicationContext(), login.class);
-                startActivity(intent);
-                finish();
-            }
+        btnlogout.setOnClickListener(view -> {
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getApplicationContext(), login.class);
+            startActivity(intent);
+            finish();
         });
 
-        browse_collection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), product_list.class);
-                startActivity(intent);
-            }
-        });
+        browse_collection.setOnClickListener(view ->
+                startActivity(new Intent(getApplicationContext(), product_list.class))
+        );
 
-        btnMyorder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MyOrdersActivity.class);
-                startActivity(intent);
-            }
-        });
+        btnMyorder.setOnClickListener(view ->
+                startActivity(new Intent(getApplicationContext(), MyOrdersActivity.class))
+        );
 
-        btnNotifications.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), NotificationStoreActivity.class);
-                startActivity(intent);
-            }
-        });
+        btnNotifications.setOnClickListener(view ->
+                startActivity(new Intent(getApplicationContext(), NotificationStoreActivity.class))
+        );
 
-        btn_supplier.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), BecomeSupplier.class);
-                startActivity(intent);
-            }
-        });
+        btn_supplier.setOnClickListener(view ->
+                startActivity(new Intent(getApplicationContext(), BecomeSupplier.class))
+        );
 
-        // ===========================
-        // ✅ Firestore Notification Listener
-        // ===========================
-        listenNotifications(); // start listening for new notifications
+        listenNotifications();           // Existing notifications listener
+        listenProcurementNotifications(); // New procurement listener
     }
 
-    // Handle runtime permission result (optional logging)
+    // Handle runtime permission result
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -146,13 +126,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // ===========================
-    // Firestore Notification Methods
+    // Existing Firestore Notifications
     // ===========================
-
-    /**
-     * Listen for new notifications in Firestore collection "notifications"
-     * Shows a local notification whenever a new document is added
-     */
     private void listenNotifications() {
         ftstore.collection("notifications")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
@@ -169,11 +144,10 @@ public class MainActivity extends AppCompatActivity {
 
                                 if (seenBy == null) seenBy = new ArrayList<>();
 
-                                // Show notification only if user hasn't seen it yet
                                 if (!seenBy.contains(userID)) {
                                     showLocalNotification(title, body);
 
-                                    // Add this user to seenBy array
+                                    // Mark as seen
                                     seenBy.add(userID);
                                     ftstore.collection("notifications")
                                             .document(notifId)
@@ -185,11 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-
-
-    /**
-     * Display a local notification on Android
-     */
+    // Show standard notification
     private void showLocalNotification(String title, String message) {
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         String channelId = "default";
@@ -206,7 +176,70 @@ public class MainActivity extends AppCompatActivity {
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setAutoCancel(true);
 
-        // Unique ID to show multiple notifications
+        manager.notify((int) System.currentTimeMillis(), builder.build());
+    }
+
+    // ===========================
+    // Procurement Notifications Listener
+    // ===========================
+    private void listenProcurementNotifications() {
+        ftstore.collection("procurement")
+                .whereEqualTo("userUID", userID)
+                .whereEqualTo("notify", true)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) return;
+
+                    if (snapshots != null) {
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (dc.getType() == DocumentChange.Type.ADDED) {
+                                DocumentSnapshot doc = dc.getDocument();
+
+                                String supplierName = doc.getString("supplierName");
+                                double totalAmount = doc.getDouble("totalAmount") != null ? doc.getDouble("totalAmount") : 0;
+                                String status = doc.getString("status");
+
+                                String title = "Procurement Update";
+                                String body = supplierName + " - ₹" + totalAmount + " (" + status + ")";
+
+                                showProcurementNotification(title, body);
+
+                                // Mark notify as false to prevent repeat
+                                ftstore.collection("procurement")
+                                        .document(doc.getId())
+                                        .update("notify", false);
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void showProcurementNotification(String title, String message) {
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        String channelId = "procurement_channel";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId, "Procurement Notifications",
+                    NotificationManager.IMPORTANCE_HIGH);
+            manager.createNotificationChannel(channel);
+        }
+
+        Intent intent = new Intent(this, ProcurementListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
         manager.notify((int) System.currentTimeMillis(), builder.build());
     }
 }

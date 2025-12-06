@@ -57,6 +57,9 @@ dependencies {
     implementation("androidx.core:core:1.10.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
 
+    // iText PDF library
+    implementation("com.itextpdf:itextg:5.5.10")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

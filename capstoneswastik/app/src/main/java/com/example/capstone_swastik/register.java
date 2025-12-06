@@ -67,7 +67,6 @@ public class register extends AppCompatActivity {
         editTextName =findViewById(R.id.name);
         editTextNumber = findViewById(R.id.phnumber);
 
-        // Navigate to Login activity if user clicks "Login Now"
         textViewLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -130,7 +129,7 @@ public class register extends AppCompatActivity {
                 // Show progress
                 progressBar.setVisibility(View.VISIBLE);
 
-                // Firebase registration
+
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override

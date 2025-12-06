@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payments - Sugarcane Supplies</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f5f1;
+    margin: 0;
+    padding: 20px;
+}
+h1 { text-align: center; color: #2e7d32; }
+.content-wrapper { width: 90%; max-width: 900px; margin: auto; }
+.tab-buttons { display: flex; justify-content: center; margin-bottom: 20px; }
+.tab-buttons button {
+    padding: 10px 20px; margin: 0 10px; border: none; border-radius: 8px;
+    background: #388e3c; color: #fff; cursor: pointer; font-weight: 600;
+}
+.tab-buttons button.active { background: #1b5e20; }
+.tab-buttons button:hover { background: #2e7d32; }
+
+.card {
+    background: #fff; border-radius: 12px; padding: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px;
+}
+
+label { font-weight: 600; margin-top: 10px; display: block; color: #1b5e20; }
+input, select {
+    width: 100%; padding: 10px; margin-top: 5px;
+    border: 1px solid #9ccc65; border-radius: 8px; font-size: 15px;
+}
+input[readonly] { background: #e0f2f1; }
+
+button.btn {
+    margin-top: 15px; padding: 12px 20px; border: none;
+    background: #388e3c; color: white; border-radius: 8px;
+    cursor: pointer; font-weight: 600;
+}
+button.btn:hover { background: #2e7d32; }
+
+.filter-btns button {
+    margin-right: 10px; padding: 8px 14px; border: none; border-radius: 6px;
+    background: #558b2f; color: #fff; cursor: pointer;
+}
+.filter-btns button:hover { background: #33691e; }
+
+table {
+    width: 100%; border-collapse: collapse; margin-top: 15px;
+}
+th, td { border: 1px solid #c8e6c9; padding: 12px; text-align: center; font-size: 14px; color: #2e7d32; }
+th { background: #dcedc8; }
+</style>
+</head>
+<body>
+
+<h1>Payments – Sugarcane Products & Supplies</h1>
+
+<div class="content-wrapper">
+
+    <!-- Tabs -->
+    <div class="tab-buttons">
+        <button id="paymentTabBtn" class="active">Add / Update Payment</button>
+        <button id="recordsTabBtn">Payment Records</button>
+    </div>
+
+    <!-- Add Payment Card -->
+    <div id="paymentCard" class="card">
+        <label>Supplier</label>
+        <select id="supplierDropdown"><option value="">Select Supplier</option></select>
+
+        <label>Bill Number</label>
+        <input type="text" id="billNumber" readonly>
+
+        <label>Quantity Supplied (kg)</label>
+        <input type="text" id="qty" readonly>
+
+        <label>Amount Payable (₹)</label>
+        <input type="text" id="amount" readonly>
+
+        <label>Status</label>
+        <input type="text" id="status" readonly>
+
+        <label>Payment Date</label>
+        <input type="date" id="paymentDate" readonly>
+
+        <button id="markPaidBtn" class="btn">Mark as Paid</button>
+        <button id="notifyBtn" class="btn" style="display:none; background:#1976d2;">Send Notification</button>
+    </div>
+
+    <!-- Payment Records -->
+    <div id="recordsCard" class="card" style="display:none;">
+        <h2>Payment Records</h2>
+        <div class="filter-btns">
+            <button id="allBtn">All</button>
+            <button id="pendingBtn">Pending</button>
+            <button id="paidBtn">Paid</button>
+        </div>
+        <table id="paymentTable">
+            <thead>
+                <tr>
+                    <th>Supplier</th>
+                    <th>Bill No.</th>
+                    <th>Quantity</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Payment Date</th>
+                    <th>Notify</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// Firebase
+const firebaseConfig = { apiKey:"AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA", authDomain:"capstone-swastik.firebaseapp.com", projectId:"capstone-swastik" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// UI refs
+const paymentTabBtn = document.getElementById("paymentTabBtn");
+const recordsTabBtn = document.getElementById("recordsTabBtn");
+const paymentCard = document.getElementById("paymentCard");
+const recordsCard = document.getElementById("recordsCard");
+
+const supplierDropdown = document.getElementById("supplierDropdown");
+const billInput = document.getElementById("billNumber");
+const qtyInput = document.getElementById("qty");
+const amountInput = document.getElementById("amount");
+const statusInput = document.getElementById("status");
+const paymentDateInput = document.getElementById("paymentDate");
+const markPaidBtn = document.getElementById("markPaidBtn");
+const notifyBtn = document.getElementById("notifyBtn");
+
+const paymentTableBody = document.querySelector("#paymentTable tbody");
+const allBtn = document.getElementById("allBtn");
+const pendingBtn = document.getElementById("pendingBtn");
+const paidBtn = document.getElementById("paidBtn");
+
+let payments = [];
+let selectedSupplierId = null;
+
+// TAB SWITCH
+paymentTabBtn.addEventListener("click", () => {
+    paymentCard.style.display = "block";
+    recordsCard.style.display = "none";
+    paymentTabBtn.classList.add("active");
+    recordsTabBtn.classList.remove("active");
+});
+recordsTabBtn.addEventListener("click", () => {
+    paymentCard.style.display = "none";
+    recordsCard.style.display = "block";
+    recordsTabBtn.classList.add("active");
+    paymentTabBtn.classList.remove("active");
+    loadPayments();
+});
+
+// FUNCTION TO GENERATE RANDOM NUMBER
+function getRandomNumber(digits) {
+    return Math.floor(Math.random() * Math.pow(10,digits));
+}
+
+// LOAD SUPPLIERS
+async function loadSuppliers() {
+    supplierDropdown.innerHTML = `<option value="">Select Supplier</option>`;
+    const q = query(collection(db,"procurement"), orderBy("timestamp","desc"));
+    const snap = await getDocs(q);
+    const addedIds = new Set();
+
+    snap.forEach(docSnap=>{
+        const d = docSnap.data();
+        if(addedIds.has(docSnap.id)) return;
+        addedIds.add(docSnap.id);
+
+        const option = document.createElement("option");
+        option.value = docSnap.id;
+        option.text = `${d.supplierName} (${d.supplierId})`;
+
+        // Generate unique bill number if missing
+        if(!d.billNumber){
+            const today = new Date().toISOString().split("T")[0].replace(/-/g,"");
+            const rand1 = getRandomNumber(3); // 3 digit random
+            const rand2 = getRandomNumber(3); // 3 digit random
+            d.billNumber = `BILL-${today}-${d.supplierId}-${rand1}-${rand2}`;
+            updateDoc(doc(db,"procurement",docSnap.id),{billNumber:d.billNumber});
+        }
+
+        option.dataset.bill = d.billNumber;
+        option.dataset.qty = d.quantity || "";
+        option.dataset.amount = d.totalAmount || "";
+        option.dataset.status = d.status || "Pending";
+        option.dataset.date = d.paymentDate || "";
+        option.dataset.notify = d.notify || "false";
+
+        supplierDropdown.appendChild(option);
+    });
+
+    if(selectedSupplierId){
+        supplierDropdown.value = selectedSupplierId;
+        triggerSupplierChange();
+    }
+}
+
+// AUTO FILL DATA
+supplierDropdown.addEventListener("change", triggerSupplierChange);
+
+function triggerSupplierChange(){
+    const s = supplierDropdown.selectedOptions[0];
+    if(!s) return;
+    selectedSupplierId = s.value;
+    billInput.value = s.dataset.bill || "";
+    qtyInput.value = s.dataset.qty || "";
+    amountInput.value = s.dataset.amount || "";
+    statusInput.value = s.dataset.status || "Pending";
+    paymentDateInput.value = new Date().toISOString().split("T")[0];
+
+    notifyBtn.style.display = (s.dataset.status==="Paid" && s.dataset.notify==="false") ? "block":"none";
+}
+
+// MARK AS PAID
+markPaidBtn.addEventListener("click", async ()=>{
+    if(!selectedSupplierId){ alert("Select a supplier"); return; }
+    await updateDoc(doc(db,"procurement",selectedSupplierId),{
+        status:"Paid",
+        paymentDate: new Date().toISOString().split("T")[0],
+        notify:false
+    });
+    statusInput.value = "Paid";
+    notifyBtn.style.display = "block";
+
+    alert("Payment marked as PAID successfully!"); // alert added
+
+    await loadSuppliers();
+    await loadPayments();
+});
+
+// SEND NOTIFICATION
+notifyBtn.addEventListener("click", async ()=>{
+    if(!selectedSupplierId) return;
+    await updateDoc(doc(db,"procurement",selectedSupplierId),{notify:true});
+    notifyBtn.style.display="none";
+    alert("Supplier Notified!");
+    await loadPayments();
+});
+
+// LOAD PAYMENT TABLE
+async function loadPayments(){
+    paymentTableBody.innerHTML="";
+    payments=[];
+    const snap = await getDocs(collection(db,"procurement"));
+    snap.forEach(docSnap=>{
+        const d=docSnap.data();
+        payments.push({...d, id:docSnap.id});
+    });
+    displayPayments(payments);
+}
+
+// DISPLAY TABLE
+function displayPayments(list){
+    paymentTableBody.innerHTML="";
+    list.forEach(d=>{
+        paymentTableBody.innerHTML+=`<tr>
+            <td>${d.supplierName}</td>
+            <td>${d.billNumber||""}</td>
+            <td>${d.quantity}</td>
+            <td>${d.totalAmount}</td>
+            <td>${d.status}</td>
+            <td>${d.paymentDate||""}</td>
+            <td>${d.notify?"Yes":"No"}</td>
+        </tr>`;
+    });
+}
+
+// FILTER BUTTONS
+allBtn.addEventListener("click",()=>displayPayments(payments));
+pendingBtn.addEventListener("click",()=>displayPayments(payments.filter(p=>p.status!=="Paid")));
+paidBtn.addEventListener("click",()=>displayPayments(payments.filter(p=>p.status==="Paid")));
+
+// INITIAL LOAD
+loadSuppliers();
+loadPayments();
+</script>
+
+</body>
+</html>

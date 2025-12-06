@@ -16,7 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class BecomeSupplier extends AppCompatActivity {
 
     Button registerButton;
-    TextView becomeTag, supplierIdTag;
+    TextView becomeTag, supplierIdTag, btnViewProcurement;
     ProgressBar progressBar;
     FirebaseAuth auth;
     FirebaseFirestore db;
@@ -30,25 +30,29 @@ public class BecomeSupplier extends AppCompatActivity {
         registerButton = findViewById(R.id.registerButton);
         becomeTag = findViewById(R.id.becomeTag);
         supplierIdTag = findViewById(R.id.supplierIdTag);
+        btnViewProcurement = findViewById(R.id.btnViewProcurement);
         progressBar = findViewById(R.id.progressBar);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Hide everything initially
         registerButton.setVisibility(View.GONE);
         supplierIdTag.setVisibility(View.GONE);
+        btnViewProcurement.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
 
         String userID = auth.getCurrentUser().getUid();
 
-        // CHECK IF USER IS SUPPLIER
+        // Check if user is already a supplier
         db.collection("supplier").document(userID)
                 .get()
                 .addOnSuccessListener(document -> {
+
                     progressBar.setVisibility(View.GONE);
 
                     if (document.exists()) {
-                        // Fallbacks for field name
+
                         String supplierID = document.getString("supplierID");
                         if (supplierID == null) supplierID = document.getString("supplierId");
                         if (supplierID == null) supplierID = document.getString("supplierid");
@@ -58,22 +62,26 @@ public class BecomeSupplier extends AppCompatActivity {
                             supplierIdTag.setVisibility(View.VISIBLE);
                         }
 
+                        // Go to Supplier Page
                         becomeTag.setText("Proceed to Supplier Page");
+                        becomeTag.setOnClickListener(v ->
+                                startActivity(new Intent(getApplicationContext(), SupplierPage.class))
+                        );
 
-                        becomeTag.setOnClickListener(v -> {
-                            Intent intent = new Intent(getApplicationContext(), SupplierPage.class);
-                            startActivity(intent);
-                        });
+                        btnViewProcurement.setVisibility(View.VISIBLE);
+                        btnViewProcurement.setOnClickListener(v ->
+                                startActivity(new Intent(getApplicationContext(), ProcurementListActivity.class))
+                        );
 
                     } else {
-                        // If NOT supplier
+                        // ----- NOT A SUPPLIER -----
                         becomeTag.setText("Become a Supplier");
+
                         registerButton.setVisibility(View.VISIBLE);
                         supplierIdTag.setVisibility(View.GONE);
 
                         registerButton.setOnClickListener(view -> {
-                            Intent intent = new Intent(getApplicationContext(), register_supplier.class);
-                            startActivity(intent);
+                            startActivity(new Intent(getApplicationContext(), register_supplier.class));
                             finish();
                         });
                     }
