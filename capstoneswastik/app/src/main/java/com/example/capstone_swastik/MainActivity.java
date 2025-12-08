@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
                 if (documentSnapshot != null && documentSnapshot.exists()) {
-                    user_name.setText("Hey, " + documentSnapshot.getString("name"));
+                    user_name.setText("Welcome, " + documentSnapshot.getString("name"));
                 }
             }
         });
@@ -179,9 +179,6 @@ public class MainActivity extends AppCompatActivity {
         manager.notify((int) System.currentTimeMillis(), builder.build());
     }
 
-    // ===========================
-    // Procurement Notifications Listener
-    // ===========================
     private void listenProcurementNotifications() {
         ftstore.collection("procurement")
                 .whereEqualTo("userUID", userID)

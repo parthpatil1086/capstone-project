@@ -63,7 +63,7 @@ public class BecomeSupplier extends AppCompatActivity {
                         }
 
                         // Go to Supplier Page
-                        becomeTag.setText("Proceed to Supplier Page");
+                        becomeTag.setText("Proceed to Farm Visit Request");
                         becomeTag.setOnClickListener(v ->
                                 startActivity(new Intent(getApplicationContext(), SupplierPage.class))
                         );

@@ -15,7 +15,8 @@
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="20dp"
         android:textColor="@android:color/black"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
@@ -58,8 +59,8 @@
 
     <Button
         android:id="@+id/btn_supplier"
-        android:layout_width="205dp"
-        android:layout_height="53dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:text="Supplier Section"
         app:layout_constraintEnd_toEndOf="parent"
