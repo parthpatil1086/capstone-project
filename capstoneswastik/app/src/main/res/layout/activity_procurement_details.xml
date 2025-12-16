@@ -249,7 +249,7 @@
                 android:id="@+id/btnGeneratePDF"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Generate Bill PDF"
+                android:text="@string/generate_bill_pdf"
                 android:textAllCaps="true"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#1B5E20"

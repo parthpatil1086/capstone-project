@@ -56,7 +56,7 @@ public class MyOrdersActivity extends AppCompatActivity {
 
     private void loadOrders(TextView tvNoOrders) {
         progressBar.setVisibility(View.VISIBLE);
-        recyclerOrders.setVisibility(View.GONE); // hide until data is ready
+        recyclerOrders.setVisibility(View.GONE);
         tvNoOrders.setVisibility(View.GONE);
 
         String uid = auth.getCurrentUser().getUid();

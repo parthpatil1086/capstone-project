@@ -81,7 +81,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
                                     progressBar.setVisibility(View.GONE); // hide loading
 
                                     if (requestList.isEmpty()) {
-                                        Toast.makeText(this, "No requests found", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, R.string.no_requests_found, Toast.LENGTH_SHORT).show();
                                     }
                                 })
                                 .addOnFailureListener(e -> {

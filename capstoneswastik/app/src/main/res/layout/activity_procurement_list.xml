@@ -12,7 +12,7 @@
         android:id="@+id/titleProcurement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="My Procurement History"
+        android:text="@string/my_procurement_history"
         android:textSize="22sp"
         android:textStyle="bold"
         android:layout_marginTop="35dp"

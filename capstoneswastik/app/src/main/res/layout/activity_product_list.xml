@@ -8,12 +8,11 @@
     android:background="#EBE8E8"
     android:paddingTop="16dp">
 
-    <!-- Header / Title -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Available Products"
+        android:text="@string/available_products"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="@color/white"

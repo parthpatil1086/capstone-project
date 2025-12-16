@@ -33,7 +33,7 @@
                 android:id="@+id/tvSupplierWelcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Welcome"
+                android:text="@string/welcome"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="#2E7D32"
@@ -46,7 +46,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sugarcane Supplier Request"
+                android:text="@string/sugarcane_supplier_request"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#2E7D32"
@@ -56,7 +56,7 @@
 
             <!-- Product Name -->
             <TextView
-                android:text="Product Name"
+                android:text="@string/product_name"
                 android:textColor="#1B5E20"
                 android:textSize="16sp"
                 android:layout_width="match_parent"
@@ -66,8 +66,8 @@
                 android:id="@+id/etProductName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Sugarcane"
-                android:text="Sugarcane"
+                android:hint="@string/sugarcane"
+                android:text="@string/sugarcane"
                 android:textColor="@android:color/black"
                 android:textColorHint="@android:color/black"
                 android:enabled="false"
@@ -77,7 +77,7 @@
 
             <!-- Area of Field -->
             <TextView
-                android:text="Area of Field (in acres)"
+                android:text="@string/area_of_field_in_acres"
                 android:textColor="#1B5E20"
                 android:textSize="16sp"
                 android:layout_width="match_parent"
@@ -87,7 +87,7 @@
                 android:id="@+id/etQuantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter area (e.g., 5 acres)"
+                android:hint="@string/enter_area_e_g_5_acres"
                 android:inputType="numberDecimal"
                 android:textColor="@android:color/black"
                 android:textColorHint="@android:color/black"
@@ -96,7 +96,7 @@
 
             <!-- Growth Months -->
             <TextView
-                android:text="Growth Months"
+                android:text="@string/growth_months"
                 android:textColor="#1B5E20"
                 android:textSize="16sp"
                 android:layout_width="match_parent"
@@ -106,7 +106,7 @@
                 android:id="@+id/etGrowthMonths"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter months (e.g., 10)"
+                android:hint="@string/enter_months_e_g_10"
                 android:inputType="number"
                 android:textColor="@android:color/black"
                 android:textColorHint="@android:color/black"
@@ -115,7 +115,7 @@
 
             <!-- Location -->
             <TextView
-                android:text="Location (Village/District)"
+                android:text="@string/location_village_district"
                 android:textColor="#1B5E20"
                 android:textSize="16sp"
                 android:layout_width="match_parent"
@@ -125,7 +125,7 @@
                 android:id="@+id/etLocation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter village/city/district"
+                android:hint="@string/enter_village_city_district"
                 android:inputType="text"
                 android:textColor="@android:color/black"
                 android:textColorHint="@android:color/black"
@@ -147,7 +147,7 @@
         android:layout_marginEnd="15dp"
         android:backgroundTint="#4CAF50"
         android:elevation="10dp"
-        android:text="SUBMIT"
+        android:text="@string/submit"
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
@@ -161,7 +161,7 @@
         android:layout_marginEnd="15dp"
         android:layout_marginTop="5dp"
         android:textSize="18sp"
-        android:text="View Status"
+        android:text="@string/view_status"
         android:textColor="#FFFFFF"
         android:backgroundTint="#4CAF50"
         android:elevation="10dp" />

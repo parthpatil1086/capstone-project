@@ -1,4 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">capstone-swastik</string>
-    <string name="buy">BUY</string>
+
+    <string name="buy">Buy</string>
+    <string name="welcome">Welcome</string>
+    <string name="supplier_section">Supplier Section</string>
+    <string name="about_factory">About Factory</string>
+    <string name="logout">Logout</string>
+    <string name="menu">Menu</string>
+    <string name="current_logged_in">Currently logged in</string>
+    <string name="proceed_to_supplier_page">Proceed to Supplier Page</string>
+    <string name="register">Register</string>
+    <string name="view_procurement_entries">View Sugarcane Entries</string>
+    <string name="id_000">ID: 000</string>
+    <string name="quantity">Quantity:</string>
+    <string name="total_price_0">Total Price: ₹ 0</string>
+    <string name="next">Next</string>
+    <string name="no_orders_found">No orders found</string>
+    <string name="my_orders">My Orders</string>
+    <string name="notifications">Notifications</string>
+    <string name="product_name">Product Name</string>
+    <string name="my_requests">My Requests</string>
+    <string name="sugarcane_supplier_request">Sugarcane Supplier Request</string>
+    <string name="area_of_field_in_acres">Area of Field (in acres)</string>
+    <string name="growth_months">Growth Months</string>
+    <string name="location_village_district">Location (Village / District)</string>
+    <string name="submit">Submit</string>
+    <string name="view_status">View Status</string>
+    <string name="become_a_supplier">Become a Supplier</string>
+    <string name="register_to_supply_your_sugarcane">Register to supply your sugarcane</string>
+    <string name="register_as_supplier">Register as Supplier</string>
+    <string name="available_products">Available Products</string>
+    <string name="buy_now">Buy Now</string>
+    <string name="my_procurement_history">Sugarcane Entry History</string>
+    <string name="generate_bill_pdf">Generate Bill PDF</string>
+    <string name="back_to_home_page">Back to Home Page</string>
+    <string name="order_summary">Order Summary</string>
+    <string name="delivery_address">Delivery Address</string>
+    <string name="proceed_to_farm_visit_request">Proceed to Farm Visit Request</string>
+    <string name="error_checking_supplier_status">Error checking supplier status</string>
+    <string name="product_price">Product Price: ₹ </string>
+    <string name="maximum_quantity_allowed_is_15">Maximum quantity allowed is 15</string>
+    <string name="total_amount">Total Amount: ₹ </string>
+
+    <string name="please_enter_your_name">Please enter your name</string>
+    <string name="please_enter_your_phone_number">Please enter your phone number</string>
+    <string name="phone_number_must_be_10_digits">Phone number must be 10 digits</string>
+    <string name="please_enter_your_address">Please enter your address</string>
+    <string name="please_enter_pin_code">Please enter PIN code</string>
+    <string name="pin_code_must_be_6_digits">PIN code must be 6 digits</string>
+
+    <string name="home">Home</string>
+    <string name="not_available">Currently not available</string>
+
+    <string name="order_has_been_cancelled_successfully">
+        Order has been cancelled successfully
+    </string>
+
+    <string name="cancel_order">Cancel Order</string>
+    <string name="shreesvastik_agro_sakharale">Shreesvastik Agro Sakharale</string>
+    <string name="bill_receipt_of_sugarcane">Sugarcane Bill Receipt</string>
+    <string name="bill_number">Bill Number: </string>
+    <string name="pdf_saved_successfully">PDF saved successfully</string>
+    <string name="go_to_main_page">Go to Main Page</string>
+    <string name="registered_your_supplier_id">Registered! Your Supplier ID: </string>
+    <string name="sugarcane">Sugarcane</string>
+    <string name="please_fill_all_fields">Please fill all fields</string>
+    <string name="request_sent_successfully_get_notify_soon">
+        Request sent successfully. You will be notified soon
+    </string>
+    <string name="no_requests_found">No requests found</string>
+    <string name="enter_area_e_g_5_acres">Enter area (e.g., 5 acres)</string>
+    <string name="enter_months_e_g_10">Enter months (e.g., 10)</string>
+    <string name="enter_village_city_district">Enter village / city / district</string>
+    <string name="marathi_language">Marathi Language</string>
+
 </resources>

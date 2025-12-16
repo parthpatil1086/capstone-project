@@ -21,13 +21,13 @@
             android:layout_marginTop="120dp"
             android:layout_marginBottom="10dp"
             android:gravity="center"
-            android:text="Become a Supplier"
+            android:text="@string/become_a_supplier"
             android:textColor="#18D527"
             android:textSize="32sp"
             android:textStyle="bold" />
 
         <TextView
-            android:text="Register to supply your sugarcane"
+            android:text="@string/register_to_supply_your_sugarcane"
             android:textSize="16sp"
             android:textColor="#555555"
             android:gravity="center"
@@ -130,7 +130,7 @@
             android:id="@+id/btn_register"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:text="Register as Supplier"
+            android:text="@string/register_as_supplier"
             android:textSize="18sp"
             android:textColor="@android:color/white"
             android:layout_marginTop="20dp"

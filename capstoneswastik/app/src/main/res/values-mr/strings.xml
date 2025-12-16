@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">कॅपस्टोन स्वस्तिक</string>
+    <string name="buy">खरेदी करा</string>
+    <string name="welcome">स्वागत आहे</string>
+    <string name="supplier_section">पुरवठादार विभाग</string>
+    <string name="about_factory">कारखान्याबद्दल</string>
+    <string name="logout">लॉगआउट</string>
+    <string name="menu">मेनू</string>
+    <string name="current_logged_in">सध्या लॉग इन आहे</string>
+    <string name="proceed_to_supplier_page">पुरवठादार पृष्ठावर जा</string>
+    <string name="register">नोंदणी करा</string>
+    <string name="view_procurement_entries">ऊस नोंदी पहा</string>
+    <string name="id_000">आयडी: 000</string>
+    <string name="quantity">प्रमाण:</string>
+    <string name="total_price_0">एकूण किंमत: ₹ 0</string>
+    <string name="next">पुढे</string>
+    <string name="no_orders_found">कोणतीही ऑर्डर आढळली नाही</string>
+    <string name="my_orders">माझ्या ऑर्डर्स</string>
+    <string name="notifications">सूचना</string>
+    <string name="product_name">उत्पादनाचे नाव</string>
+    <string name="my_requests">माझ्या विनंत्या</string>
+    <string name="sugarcane_supplier_request">ऊस पुरवठादार विनंती</string>
+    <string name="area_of_field_in_acres">शेतीचे क्षेत्रफळ (एकर)</string>
+    <string name="growth_months">वाढीचे महिने</string>
+    <string name="location_village_district">ठिकाण (गाव / जिल्हा)</string>
+    <string name="submit">सबमिट करा</string>
+    <string name="view_status">स्थिती पहा</string>
+    <string name="become_a_supplier">पुरवठादार बना</string>
+    <string name="register_to_supply_your_sugarcane">
+        तुमचा ऊस पुरवठा करण्यासाठी नोंदणी करा
+    </string>
+    <string name="register_as_supplier">पुरवठादार म्हणून नोंदणी करा</string>
+    <string name="available_products">उपलब्ध उत्पादने</string>
+    <string name="buy_now">आत्ता खरेदी करा</string>
+    <string name="my_procurement_history">ऊस नोंद इतिहास</string>
+    <string name="generate_bill_pdf">बिल PDF तयार करा</string>
+    <string name="back_to_home_page">मुख्य पृष्ठावर परत जा</string>
+    <string name="order_summary">ऑर्डर सारांश</string>
+    <string name="delivery_address">वितरण पत्ता</string>
+    <string name="proceed_to_farm_visit_request">
+        शेत भेट विनंतीसाठी पुढे जा
+    </string>
+    <string name="error_checking_supplier_status">
+        पुरवठादार स्थिती तपासताना त्रुटी
+    </string>
+    <string name="product_price">उत्पादनाची किंमत: ₹ </string>
+    <string name="maximum_quantity_allowed_is_15">
+        कमाल परवानगी दिलेले प्रमाण 15 आहे
+    </string>
+    <string name="total_amount">एकूण रक्कम: ₹ </string>
+
+    <string name="please_enter_your_name">कृपया तुमचे नाव भरा</string>
+    <string name="please_enter_your_phone_number">कृपया मोबाईल क्रमांक भरा</string>
+    <string name="phone_number_must_be_10_digits">
+        मोबाईल क्रमांक 10 अंकी असावा
+    </string>
+    <string name="please_enter_your_address">कृपया पत्ता भरा</string>
+    <string name="please_enter_pin_code">कृपया पिन कोड भरा</string>
+    <string name="pin_code_must_be_6_digits">पिन कोड 6 अंकी असावा</string>
+
+    <string name="home">मुख्य पृष्ठ</string>
+    <string name="not_available">सध्या उपलब्ध नाही</string>
+
+    <string name="order_has_been_cancelled_successfully">
+        ऑर्डर यशस्वीरित्या रद्द करण्यात आली आहे
+    </string>
+
+    <string name="cancel_order">ऑर्डर रद्द करा</string>
+    <string name="shreesvastik_agro_sakharale">
+        श्रीस्वस्तिक अ‍ॅग्रो साखराळे
+    </string>
+    <string name="bill_receipt_of_sugarcane">ऊस बिल पावती</string>
+    <string name="bill_number">बिल क्रमांक: </string>
+    <string name="pdf_saved_successfully">PDF यशस्वीरित्या सेव्ह झाले</string>
+    <string name="go_to_main_page">मुख्य पृष्ठावर जा</string>
+    <string name="registered_your_supplier_id">
+        नोंदणी पूर्ण! तुमचा पुरवठादार आयडी:
+    </string>
+    <string name="sugarcane">ऊस</string>
+    <string name="please_fill_all_fields">कृपया सर्व माहिती भरा</string>
+    <string name="request_sent_successfully_get_notify_soon">
+        विनंती यशस्वीरित्या पाठवली आहे. लवकरच सूचना मिळेल
+    </string>
+    <string name="no_requests_found">कोणतीही विनंती आढळली नाही</string>
+    <string name="enter_area_e_g_5_acres">
+        क्षेत्रफळ भरा (उदा. 5 एकर)
+    </string>
+    <string name="enter_months_e_g_10">
+        महिने भरा (उदा. 10)
+    </string>
+    <string name="enter_village_city_district">
+        गाव / शहर / जिल्हा भरा
+    </string>
+    <string name="marathi_language">मराठी भाषा</string>
+
+</resources>

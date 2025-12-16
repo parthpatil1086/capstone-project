@@ -6,6 +6,7 @@ import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,11 +41,19 @@ public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_CODE = 101;
 
     TextView user_name;
-    ImageView nav_home, nav_browse, nav_notifications, nav_menu;
+    ImageView nav_home, nav_browse, nav_notifications, nav_menu, nav_cart;
 
     String userID;
     FirebaseAuth auth;
     FirebaseFirestore ftstore;
+
+    /* ---------------- LANGUAGE PERSIST ---------------- */
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        String lang = LocaleHelper.getLanguage(newBase);
+        LocaleHelper.setLocale(newBase, lang);
+        super.attachBaseContext(newBase);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,20 +69,24 @@ public class MainActivity extends AppCompatActivity {
         nav_browse = findViewById(R.id.nav_browse);
         nav_notifications = findViewById(R.id.nav_notifications);
         nav_menu = findViewById(R.id.nav_menu);
+        nav_cart = findViewById(R.id.nav_cart);
 
         userID = auth.getCurrentUser().getUid();
 
-        // ================= USER NAME =================
+        /* ---------------- USER NAME ---------------- */
         DocumentReference docRef =
                 ftstore.collection("users").document(userID);
 
         docRef.addSnapshotListener(this, (snapshot, error) -> {
             if (snapshot != null && snapshot.exists()) {
-                user_name.setText("Welcome, " + snapshot.getString("name"));
+                user_name.setText(
+                        getString(R.string.welcome) + ", " +
+                                snapshot.getString("name")
+                );
             }
         });
 
-        // ================= NOTIFICATION PERMISSION =================
+        /* ---------------- NOTIFICATION PERMISSION ---------------- */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.POST_NOTIFICATIONS)
@@ -84,10 +98,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // ================= BOTTOM NAV =================
-        nav_home.setOnClickListener(v -> {
-            Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show();
-        });
+        /* ---------------- BOTTOM NAV ---------------- */
+        nav_home.setOnClickListener(v ->
+                Toast.makeText(this, R.string.home, Toast.LENGTH_SHORT).show());
 
         nav_browse.setOnClickListener(v ->
                 startActivity(new Intent(this, product_list.class)));
@@ -97,11 +110,13 @@ public class MainActivity extends AppCompatActivity {
 
         nav_menu.setOnClickListener(v -> showBottomMenu());
 
+        nav_cart.setOnClickListener(v ->
+                startActivity(new Intent(this, MyOrdersActivity.class)));
+
         listenNotifications();
         listenProcurementNotifications();
     }
 
-    // ================= SLIDER MENU (HALF SCREEN) =================
     private void showBottomMenu() {
 
         BottomSheetDialog dialog =
@@ -113,30 +128,44 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.setContentView(view);
 
-        // ----- Half screen height -----
         View bottomSheet =
                 dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
 
         if (bottomSheet != null) {
             BottomSheetBehavior<View> behavior =
                     BottomSheetBehavior.from(bottomSheet);
-
             behavior.setPeekHeight(
                     getResources().getDisplayMetrics().heightPixels / 2
             );
             behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         }
 
-        // ----- Views -----
         ImageView btnClose = view.findViewById(R.id.btn_close);
         TextView menuUserName = view.findViewById(R.id.menu_user_name);
         TextView menuSupplier = view.findViewById(R.id.menu_supplier);
         TextView menuAbout = view.findViewById(R.id.menu_about);
-        TextView menuContact = view.findViewById(R.id.menu_contact);
         TextView menuLogout = view.findViewById(R.id.menu_logout);
+
+        // Language UI
+        TextView tvLanguageLabel = view.findViewById(R.id.tv_language_label);
+        Switch switchLanguage = view.findViewById(R.id.switch_language);
 
         menuUserName.setText(user_name.getText());
 
+        // ================= LANGUAGE STATE =================
+        String currentLang = LocaleHelper.getLanguage(this);
+
+        if ("mr".equals(currentLang)) {
+            // Marathi active → option to switch to English
+            switchLanguage.setChecked(true);
+            tvLanguageLabel.setText("English");
+        } else {
+            // English active → option to switch to Marathi
+            switchLanguage.setChecked(false);
+            tvLanguageLabel.setText("मराठी");
+        }
+
+        // ================= ACTIONS =================
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         menuSupplier.setOnClickListener(v -> {
@@ -145,13 +174,26 @@ public class MainActivity extends AppCompatActivity {
         });
 
         menuAbout.setOnClickListener(v ->
-                Toast.makeText(this, "Currently not available", Toast.LENGTH_SHORT).show()
-        );
+                Toast.makeText(this,
+                        getString(R.string.not_available),
+                        Toast.LENGTH_SHORT).show());
 
-        menuContact.setOnClickListener(v ->
-                Toast.makeText(this, "Currently not available", Toast.LENGTH_SHORT).show()
-        );
+        // ================= LANGUAGE SWITCH =================
+        switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
+            if (isChecked) {
+                // ON → Marathi
+                LocaleHelper.setLocale(this, "mr");
+            } else {
+                // OFF → English
+                LocaleHelper.setLocale(this, "en");
+            }
+
+            dialog.dismiss();
+            recreate(); // reload activity with new language
+        });
+
+        // ================= LOGOUT =================
         menuLogout.setOnClickListener(v -> {
             dialog.dismiss();
             FirebaseAuth.getInstance().signOut();
@@ -162,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    // ================= PERMISSION RESULT =================
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions,
@@ -177,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ================= GENERAL NOTIFICATIONS =================
+    /* ================= GENERAL NOTIFICATIONS ================= */
     private void listenNotifications() {
         ftstore.collection("notifications")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
@@ -232,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
         manager.notify((int) System.currentTimeMillis(), builder.build());
     }
 
-    // ================= PROCUREMENT =================
+    /* ================= PROCUREMENT ================= */
     private void listenProcurementNotifications() {
         ftstore.collection("procurement")
                 .whereEqualTo("userUID", userID)

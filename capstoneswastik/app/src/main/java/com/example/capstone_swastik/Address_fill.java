@@ -53,10 +53,10 @@ public class Address_fill extends AppCompatActivity {
         int totalAmount = getIntent().getIntExtra("totalValue", 0);
         int img = getIntent().getIntExtra("img", R.drawable.shree_swastik_default);
 
-        tvProductName.setText("Product: " + productName);
-        tvProductPrice.setText("Price: ₹ " + productPrice);
-        tvQuantity.setText("Quantity: " + quantity);
-        tvTotalAmount.setText("Total Amount: ₹ " + totalAmount);
+        tvProductName.setText(getString(R.string.product_name)+ productName);
+        tvProductPrice.setText(getString(R.string.product_price)+ productPrice);
+        tvQuantity.setText(getString(R.string.quantity)+ quantity);
+        tvTotalAmount.setText(getString(R.string.total_amount) + totalAmount);
 
         btnSubmit.setOnClickListener(v -> {
 
@@ -68,37 +68,37 @@ public class Address_fill extends AppCompatActivity {
 
             // Validation checks
             if(inputName.isEmpty()) {
-                etName.setError("Please enter your name");
+                etName.setError(getString(R.string.please_enter_your_name));
                 etName.requestFocus();
                 return;
             }
 
             if(inputPhone.isEmpty()) {
-                etPhone.setError("Please enter your phone number");
+                etPhone.setError(getString(R.string.please_enter_your_phone_number));
                 etPhone.requestFocus();
                 return;
             }
 
             if(!inputPhone.matches("\\d{10}")) { // exactly 10 digits
-                etPhone.setError("Phone number must be 10 digits");
+                etPhone.setError(getString(R.string.phone_number_must_be_10_digits));
                 etPhone.requestFocus();
                 return;
             }
 
             if(inputAddress.isEmpty()) {
-                etAddress.setError("Please enter your address");
+                etAddress.setError(getString(R.string.please_enter_your_address));
                 etAddress.requestFocus();
                 return;
             }
 
             if(inputPin.isEmpty()) {
-                etPin.setError("Please enter PIN code");
+                etPin.setError(getString(R.string.please_enter_pin_code));
                 etPin.requestFocus();
                 return;
             }
 
             if(!inputPin.matches("\\d{6}")) { // exactly 6 digits
-                etPin.setError("PIN code must be 6 digits");
+                etPin.setError(getString(R.string.pin_code_must_be_6_digits));
                 etPin.requestFocus();
                 return;
             }

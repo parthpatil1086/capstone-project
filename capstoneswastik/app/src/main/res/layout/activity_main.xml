@@ -8,19 +8,11 @@
     android:background="#FFFFFF"
     tools:context=".MainActivity">
 
-    <!-- User Name -->
-    <!-- ================= TOP APP BAR ================= -->
-
-
-    <!-- Logo -->
-
-    <!-- Logout Button -->
-
     <LinearLayout
         android:id="@+id/top_app_bar"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="32dp"
         android:background="#2E7D32"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -31,17 +23,17 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.108">
+        app:layout_constraintVertical_bias="0.0">
 
         <!-- App Logo (optional) -->
-<!--        <ImageView-->
-<!--            android:id="@+id/app_logo"-->
-<!--            android:layout_width="38dp"-->
-<!--            android:layout_height="38dp"-->
-<!--            android:layout_gravity="center_vertical"-->
-<!--            android:background="@color/white"-->
-<!--            android:contentDescription="App Logo"-->
-<!--            android:src="@drawable/shree_swastik_default" />-->
+        <!--        <ImageView-->
+        <!--            android:id="@+id/app_logo"-->
+        <!--            android:layout_width="38dp"-->
+        <!--            android:layout_height="38dp"-->
+        <!--            android:layout_gravity="center_vertical"-->
+        <!--            android:background="@color/white"-->
+        <!--            android:contentDescription="App Logo"-->
+        <!--            android:src="@drawable/shree_swastik_default" />-->
 
         <!-- App Name -->
         <TextView
@@ -62,6 +54,7 @@
         android:layout_marginTop="212dp"
         android:textColor="@android:color/black"
         android:textSize="20sp"
+        android:text="welcome"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,13 +75,13 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_nav"
-        android:layout_width="403dp"
+        android:layout_width="0dp"
         android:layout_height="119dp"
         android:layout_marginBottom="4dp"
         android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Home -->
         <ImageView
@@ -96,9 +89,9 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/nav_browse"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0.1"
             app:srcCompat="@drawable/baseline_home_24" />
 
         <!-- Browse Collection -->
@@ -107,10 +100,23 @@
             android:layout_width="50dp"
             android:layout_height="45dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/nav_notifications"
-            app:layout_constraintStart_toEndOf="@id/nav_home"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/nav_home"
+            app:layout_constraintEnd_toStartOf="@id/nav_cart"
+            app:layout_constraintHorizontal_bias="0.5"
             app:srcCompat="@drawable/ic_shopping_bag" />
+
+        <!-- Cart -->
+        <ImageView
+            android:id="@+id/nav_cart"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/nav_browse"
+            app:layout_constraintEnd_toStartOf="@id/nav_notifications"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:srcCompat="@drawable/ic_cart" />
 
         <!-- Notifications -->
         <ImageView
@@ -118,9 +124,10 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/nav_menu"
-            app:layout_constraintStart_toEndOf="@id/nav_browse"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/nav_cart"
+            app:layout_constraintEnd_toStartOf="@id/nav_menu"
+            app:layout_constraintHorizontal_bias="0.5"
             app:srcCompat="@drawable/baseline_notifications_24" />
 
         <!-- Menu -->
@@ -129,9 +136,9 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/nav_notifications"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.9"
             app:srcCompat="@drawable/ic_menu" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

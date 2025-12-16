@@ -43,8 +43,8 @@ public class Product_details extends AppCompatActivity {
 
         String description = getIntent().getStringExtra("description");
 
-        textViewProductName.setText("Product Name :" + name);
-        textViewProductPrice.setText("Product Price: " + price);
+        textViewProductName.setText(getString(R.string.product_name)+ name);
+        textViewProductPrice.setText(getString(R.string.product_price)+ price);
         imageViewProductimg.setImageResource(img);
         textViewProductDescription.setText(description != null ? description : "Loading description...");
 

@@ -47,7 +47,7 @@ public class SupplierPage extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         // Set fixed product name
-        etProductName.setText("Sugarcane");
+        etProductName.setText(R.string.sugarcane);
 
         // Get current logged-in user's UID
         if (auth.getCurrentUser() != null) {
@@ -86,7 +86,7 @@ public class SupplierPage extends AppCompatActivity {
         String growthMonths = etGrowthMonths.getText().toString().trim();
 
         if (area.isEmpty() || location.isEmpty() || growthMonths.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -108,7 +108,7 @@ public class SupplierPage extends AppCompatActivity {
         db.collection("supplier_requests")
                 .add(request)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Request sent successfully get notify soon ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.request_sent_successfully_get_notify_soon, Toast.LENGTH_SHORT).show();
                     etQuantity.setText("");
                     etLocation.setText("");
                     etGrowthMonths.setText("");

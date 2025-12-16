@@ -137,19 +137,19 @@ public class ProcurementDetailsActivity extends AppCompatActivity {
             }
 
             // Factory name
-            Paragraph factoryName = new Paragraph("Shreesvastik Agro Sakharale", titleFont);
+            Paragraph factoryName = new Paragraph(getString(R.string.shreesvastik_agro_sakharale), titleFont);
             factoryName.setAlignment(Element.ALIGN_CENTER);
             document.add(factoryName);
 
             // Subtitle
-            Paragraph billTitle = new Paragraph("Bill Receipt of Sugarcane", subTitleFont);
+            Paragraph billTitle = new Paragraph(getString(R.string.bill_receipt_of_sugarcane), subTitleFont);
             billTitle.setAlignment(Element.ALIGN_CENTER);
             document.add(billTitle);
 
             document.add(new Paragraph(" ")); // spacing
 
             // Bill Number separate above table
-            Paragraph billNumPara = new Paragraph("Bill Number: " + (billNumber != null ? billNumber : "N/A"), headerFont);
+            Paragraph billNumPara = new Paragraph(getString(R.string.bill_number) + (billNumber != null ? billNumber : "N/A"), headerFont);
             billNumPara.setAlignment(Element.ALIGN_LEFT);
             document.add(billNumPara);
 
@@ -195,7 +195,7 @@ public class ProcurementDetailsActivity extends AppCompatActivity {
             document.add(table);
             document.close();
 
-            Toast.makeText(this, "PDF Saved Successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.pdf_saved_successfully, Toast.LENGTH_SHORT).show();
 
         } catch (Exception e) {
             e.printStackTrace();

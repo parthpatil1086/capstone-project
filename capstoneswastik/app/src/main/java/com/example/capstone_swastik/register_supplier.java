@@ -69,7 +69,7 @@ public class register_supplier extends AppCompatActivity {
                         // Already registered
                         generatedSupplierID = doc.getString("supplierID");
                         etSupplierID.setText(generatedSupplierID);
-                        btnRegister.setText("Go to Main Page");
+                        btnRegister.setText(R.string.go_to_main_page);
                         btnRegister.setEnabled(true);
                         btnRegister.setOnClickListener(v -> {
                             startActivity(new Intent(register_supplier.this, MainActivity.class));
@@ -166,9 +166,9 @@ public class register_supplier extends AppCompatActivity {
         db.collection("supplier").document(userID)
                 .set(supplierData, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Registered! Your Supplier ID: " + generatedSupplierID, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.registered_your_supplier_id) + generatedSupplierID, Toast.LENGTH_SHORT).show();
 
-                    btnRegister.setText("Go to Main Page");
+                    btnRegister.setText(getString(R.string.go_to_main_page));
                     btnRegister.setOnClickListener(v -> {
                         startActivity(new Intent(register_supplier.this, MainActivity.class));
                         finish();

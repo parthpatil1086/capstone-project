@@ -43,8 +43,8 @@ public class CheckoutProduct extends AppCompatActivity {
         String price = getIntent().getStringExtra("price");
         int img = getIntent().getIntExtra("img", R.drawable.shree_swastik_default);
 
-        textViewProductName.setText("Product Name: " + name);
-        textViewProductPrice.setText("Product Price: ₹ " + price);
+        textViewProductName.setText(getString(R.string.product_name )+ name);
+        textViewProductPrice.setText(getString(R.string.product_price) + price);
         imageViewProductimg.setImageResource(img);
 
         try {
@@ -71,7 +71,7 @@ public class CheckoutProduct extends AppCompatActivity {
                 int quantity = Integer.parseInt(s.toString());
 
                 if (quantity > MAX_QUANTITY) {
-                    Toast.makeText(CheckoutProduct.this, "Maximum quantity allowed is 15", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CheckoutProduct.this, R.string.maximum_quantity_allowed_is_15, Toast.LENGTH_SHORT).show();
                     quantity = MAX_QUANTITY;
                     editTextQuantity.setText(String.valueOf(MAX_QUANTITY));
                     editTextQuantity.setSelection(editTextQuantity.getText().length());

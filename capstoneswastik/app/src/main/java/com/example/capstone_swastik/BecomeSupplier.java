@@ -63,7 +63,7 @@ public class BecomeSupplier extends AppCompatActivity {
                         }
 
                         // Go to Supplier Page
-                        becomeTag.setText("Proceed to Farm Visit Request");
+                        becomeTag.setText(R.string.proceed_to_farm_visit_request);
                         becomeTag.setOnClickListener(v ->
                                 startActivity(new Intent(getApplicationContext(), SupplierPage.class))
                         );
@@ -73,9 +73,8 @@ public class BecomeSupplier extends AppCompatActivity {
                                 startActivity(new Intent(getApplicationContext(), ProcurementListActivity.class))
                         );
 
-                    } else {
-                        // ----- NOT A SUPPLIER -----
-                        becomeTag.setText("Become a Supplier");
+                    } else{
+                        becomeTag.setText(R.string.become_a_supplier);
 
                         registerButton.setVisibility(View.VISIBLE);
                         supplierIdTag.setVisibility(View.GONE);
@@ -88,7 +87,7 @@ public class BecomeSupplier extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
-                    becomeTag.setText("Error checking supplier status");
+                    becomeTag.setText(R.string.error_checking_supplier_status);
                     registerButton.setVisibility(View.GONE);
                 });
     }

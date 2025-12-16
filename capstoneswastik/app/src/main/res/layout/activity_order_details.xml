@@ -39,7 +39,7 @@
 
             <TextView
                 android:id="@+id/tvPName"
-                android:text="Product Name"
+                android:text="@string/product_name"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="#212121"
@@ -120,7 +120,7 @@
             android:id="@+id/btnCancelOrder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CANCEL ORDER"
+            android:text="@string/cancel_order"
             android:backgroundTint="#F44336"
             android:textColor="#FFFFFF"
             android:paddingVertical="12dp"

@@ -68,7 +68,7 @@
                 android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:text="Buy"
+                android:text="@string/buy"
                 android:textSize="15sp"
                 android:textColor="@android:color/white"
                 app:backgroundTint="#18D527"/>

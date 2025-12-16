@@ -75,15 +75,15 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
                         // Price
                         Number price = doc.get("productPrice") instanceof Number ? (Number) doc.get("productPrice") : 0;
-                        tvPPrice.setText("Price: ₹ " + price.intValue());
+                        tvPPrice.setText(getString(R.string.product_name)+ price.intValue());
 
                         // Quantity
                         Number qty = doc.get("quantity") instanceof Number ? (Number) doc.get("quantity") : 1;
-                        tvQty.setText("Quantity: " + qty.intValue());
+                        tvQty.setText(getString(R.string.product_price)+ qty.intValue());
 
                         // Total
                         Number total = doc.get("totalAmount") instanceof Number ? (Number) doc.get("totalAmount") : 0;
-                        tvTotal.setText("Total: ₹ " + total.intValue());
+                        tvTotal.setText(getString(R.string.total_amount) + total.intValue());
 
                         // Address
                         tvAddress.setText(
@@ -156,7 +156,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         orderRef.update(updates)
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(OrderDetailsActivity.this, "Order has been CANCELLED successfully.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(OrderDetailsActivity.this, R.string.order_has_been_cancelled_successfully, Toast.LENGTH_LONG).show();
 
                     // Update UI immediately
                     tvStatus.setText("Status: Cancelled");

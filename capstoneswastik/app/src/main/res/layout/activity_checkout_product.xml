@@ -68,7 +68,7 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:layout_marginEnd="12dp"
-            android:text="Quantity:"
+            android:text="@string/quantity"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
@@ -98,7 +98,7 @@
         android:layout_marginTop="16dp"
         android:background="#EFEFEF"
         android:gravity="center"
-        android:text="TOTAL PRICE: ₹ 0"
+        android:text="@string/total_price_0"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@id/quantityCard"
@@ -113,7 +113,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
         android:layout_marginTop="24dp"
-        android:text="NEXT"
+        android:text="@string/next"
         android:textColor="@android:color/white"
         android:textSize="20sp"
         app:backgroundTint="#18D527"
