@@ -2,28 +2,35 @@ package com.example.capstone_swastik;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.*;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Address_fill extends AppCompatActivity {
 
     TextView tvProductName, tvProductPrice, tvQuantity, tvTotalAmount;
+    TextView tvPrevName, tvPrevPhone, tvPrevAddress, tvPrevPin;
     EditText etName, etPhone, etAddress, etPin, etInfo;
-    Button btnSubmit;
+    Button btnSubmit, btnUseAddress, btnEditAddress;
+    LinearLayout layoutPreviousAddress;
 
     FirebaseAuth auth;
     FirebaseFirestore db;
+
+    String productName;
+    int productPrice, quantity, totalAmount, img;
+    String productId; // ✅ class-level
+    boolean isEditMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +41,7 @@ public class Address_fill extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // ---------- UI BINDING ----------
         tvProductName = findViewById(R.id.tvProductName);
         tvProductPrice = findViewById(R.id.tvProductPrice);
         tvQuantity = findViewById(R.id.tvQuantity);
@@ -47,93 +55,148 @@ public class Address_fill extends AppCompatActivity {
 
         btnSubmit = findViewById(R.id.btnSubmit);
 
-        String productName = getIntent().getStringExtra("name");
-        int productPrice = getIntent().getIntExtra("price", 0);
-        int quantity = getIntent().getIntExtra("quantity", 0);
-        int totalAmount = getIntent().getIntExtra("totalValue", 0);
-        int img = getIntent().getIntExtra("img", R.drawable.shree_swastik_default);
+        layoutPreviousAddress = findViewById(R.id.layoutPreviousAddress);
+        tvPrevName = findViewById(R.id.tvPrevName);
+        tvPrevPhone = findViewById(R.id.tvPrevPhone);
+        tvPrevAddress = findViewById(R.id.tvPrevAddress);
+        tvPrevPin = findViewById(R.id.tvPrevPin);
 
-        tvProductName.setText(getString(R.string.product_name)+ productName);
-        tvProductPrice.setText(getString(R.string.product_price)+ productPrice);
-        tvQuantity.setText(getString(R.string.quantity)+ quantity);
-        tvTotalAmount.setText(getString(R.string.total_amount) + totalAmount);
+        btnUseAddress = findViewById(R.id.btnUseAddress);
+        btnEditAddress = findViewById(R.id.btnEditAddress);
 
-        btnSubmit.setOnClickListener(v -> {
+        layoutPreviousAddress.setVisibility(View.GONE);
 
-            String inputName = etName.getText().toString().trim();
-            String inputPhone = etPhone.getText().toString().trim();
-            String inputAddress = etAddress.getText().toString().trim();
-            String inputPin = etPin.getText().toString().trim();
-            String inputInfo = etInfo.getText().toString().trim();
+        // ---------- RECEIVE PRODUCT DATA ----------
+        Intent i = getIntent();
+        productName = i.getStringExtra("name");
+        productPrice = i.getIntExtra("price", 0);
+        quantity = i.getIntExtra("quantity", 1);
+        totalAmount = i.getIntExtra("totalValue", 0);
+        productId = i.getStringExtra("productId"); // ✅ Receive productId
+        img = i.getIntExtra("img", R.drawable.shree_swastik_default);
 
-            // Validation checks
-            if(inputName.isEmpty()) {
-                etName.setError(getString(R.string.please_enter_your_name));
-                etName.requestFocus();
-                return;
-            }
+        tvProductName.setText("Product: " + productName);
+        tvProductPrice.setText("Price: ₹" + productPrice);
+        tvQuantity.setText("Quantity: " + quantity);
+        tvTotalAmount.setText("Total: ₹" + totalAmount);
 
-            if(inputPhone.isEmpty()) {
-                etPhone.setError(getString(R.string.please_enter_your_phone_number));
-                etPhone.requestFocus();
-                return;
-            }
+        // ---------- LOAD SAVED ADDRESS ----------
+        loadSavedAddress();
 
-            if(!inputPhone.matches("\\d{10}")) { // exactly 10 digits
-                etPhone.setError(getString(R.string.phone_number_must_be_10_digits));
-                etPhone.requestFocus();
-                return;
-            }
+        btnSubmit.setOnClickListener(v -> placeOrderOrSaveAddress());
+    }
 
-            if(inputAddress.isEmpty()) {
-                etAddress.setError(getString(R.string.please_enter_your_address));
-                etAddress.requestFocus();
-                return;
-            }
+    // Load saved address
+    private void loadSavedAddress() {
+        String uid = auth.getCurrentUser().getUid();
 
-            if(inputPin.isEmpty()) {
-                etPin.setError(getString(R.string.please_enter_pin_code));
-                etPin.requestFocus();
-                return;
-            }
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && doc.contains("address")) {
 
-            if(!inputPin.matches("\\d{6}")) { // exactly 6 digits
-                etPin.setError(getString(R.string.pin_code_must_be_6_digits));
-                etPin.requestFocus();
-                return;
-            }
+                        layoutPreviousAddress.setVisibility(View.VISIBLE);
 
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        String name = doc.getString("name");
+                        String phone = doc.getString("phone");
+                        String address = doc.getString("address");
+                        String pin = doc.getString("pin");
 
-            Map<String, Object> orderData = new HashMap<>();
-            orderData.put("userID", uid);
-            orderData.put("productName", productName);
-            orderData.put("productPrice", productPrice);
-            orderData.put("quantity", quantity);
-            orderData.put("totalAmount", totalAmount);
-            orderData.put("image", img);
+                        tvPrevName.setText(name);
+                        tvPrevPhone.setText(phone);
+                        tvPrevAddress.setText(address);
+                        tvPrevPin.setText(pin);
 
-            orderData.put("name", inputName);
-            orderData.put("phone", inputPhone);
-            orderData.put("address", inputAddress);
-            orderData.put("pin", inputPin);
-            orderData.put("info", inputInfo);
-            orderData.put("timestamp", System.currentTimeMillis());
+                        btnUseAddress.setOnClickListener(v -> {
+                            etName.setText(name);
+                            etPhone.setText(phone);
+                            etAddress.setText(address);
+                            etPin.setText(pin);
+                        });
 
-            db.collection("orders")
-                    .add(orderData)
-                    .addOnSuccessListener(doc -> {
-                        // Pass info to success screen
-                        Intent intent = new Intent(Address_fill.this, OrderSuccessActivity.class);
-                        intent.putExtra("userName", inputName);
-                        intent.putExtra("productName", productName);
-                        intent.putExtra("totalAmount", totalAmount);
-                        startActivity(intent);
-                        finish();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        });
+                        btnEditAddress.setOnClickListener(v -> enableEditMode(name, phone, address, pin));
+                    }
+                });
+    }
+
+    // Enable edit mode
+    private void enableEditMode(String name, String phone, String address, String pin) {
+        isEditMode = true;
+        layoutPreviousAddress.setVisibility(View.GONE);
+
+        etName.setText(name);
+        etPhone.setText(phone);
+        etAddress.setText(address);
+        etPin.setText(pin);
+
+        btnSubmit.setText("Save Address");
+    }
+
+    // Place order or save edited address
+    private void placeOrderOrSaveAddress() {
+
+        String name = etName.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
+        String address = etAddress.getText().toString().trim();
+        String pin = etPin.getText().toString().trim();
+        String info = etInfo.getText().toString().trim();
+
+        if (name.isEmpty() || !phone.matches("\\d{10}") || address.isEmpty() || !pin.matches("\\d{6}")) {
+            Toast.makeText(this, "Enter valid address details", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid = auth.getCurrentUser().getUid();
+
+        // Save/update address
+        Map<String, Object> addr = new HashMap<>();
+        addr.put("name", name);
+        addr.put("phone", phone);
+        addr.put("address", address);
+        addr.put("pin", pin);
+
+        db.collection("users").document(uid)
+                .set(addr, SetOptions.merge())
+                .addOnSuccessListener(unused -> {
+
+                    // If editing address, reload previous address UI
+                    if (isEditMode) {
+                        isEditMode = false;
+                        btnSubmit.setText("Place Order");
+                        loadSavedAddress();
+                        Toast.makeText(this, "Address Updated", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // ---------- CREATE ORDER ----------
+                    String orderId = UUID.randomUUID().toString();
+                    Map<String, Object> order = new HashMap<>();
+                    order.put("orderId", orderId);
+                    order.put("userID", uid);
+                    order.put("productName", productName);
+                    order.put("productPrice", productPrice);
+                    order.put("quantity", quantity);
+                    order.put("totalAmount", totalAmount);
+                    order.put("image", img);
+                    order.put("productId", productId); // ✅ Include productId
+                    order.put("status", "Pending");
+                    order.put("paymentStatus", "COD");
+                    order.put("placedAt", System.currentTimeMillis());
+
+                    order.put("name", name);
+                    order.put("phone", phone);
+                    order.put("address", address);
+                    order.put("pin", pin);
+                    order.put("info", info);
+
+                    db.collection("orders").add(order)
+                            .addOnSuccessListener(doc -> {
+                                Intent intent = new Intent(this, OrderSuccessActivity.class);
+                                intent.putExtra("orderId", orderId);
+                                intent.putExtra("productName", productName);
+                                intent.putExtra("totalAmount", totalAmount);
+                                startActivity(intent);
+                                finish();
+                            });
+                });
     }
 }

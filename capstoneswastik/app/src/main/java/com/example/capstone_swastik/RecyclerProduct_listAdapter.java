@@ -44,10 +44,10 @@ public class RecyclerProduct_listAdapter extends RecyclerView.Adapter<RecyclerPr
         holder.btnBuy.setOnClickListener(v -> {
             Intent intent = new Intent(context, Product_details.class);
 
-            // Pass raw values for calculations & database
             intent.putExtra("name", product.rawName);
             intent.putExtra("price", product.rawPrice);
             intent.putExtra("img", product.img);
+            intent.putExtra("docId", product.id);
             intent.putExtra("docId", product.id);
             intent.putExtra("description", product.description);
 

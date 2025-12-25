@@ -96,6 +96,9 @@ public class CheckoutProduct extends AppCompatActivity {
             intent.putExtra("name", name);
             intent.putExtra("price", productPrice);
             intent.putExtra("img", img);
+            intent.putExtra("productId", getIntent().getStringExtra("productId")); // ✅ Pass productId
+
+
             startActivity(intent);
         });
     }

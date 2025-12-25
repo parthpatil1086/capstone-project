@@ -82,7 +82,6 @@ public class register_supplier extends AppCompatActivity {
                     progressBar.setVisibility(ProgressBar.GONE);
                 });
 
-        // 3️⃣ Button click for registration
         btnRegister.setOnClickListener(view -> registerSupplier());
     }
 
@@ -168,9 +167,9 @@ public class register_supplier extends AppCompatActivity {
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, getString(R.string.registered_your_supplier_id) + generatedSupplierID, Toast.LENGTH_SHORT).show();
 
-                    btnRegister.setText(getString(R.string.go_to_main_page));
+                    btnRegister.setText(getString(R.string.back_to_home_page));
                     btnRegister.setOnClickListener(v -> {
-                        startActivity(new Intent(register_supplier.this, MainActivity.class));
+                        startActivity(new Intent(register_supplier.this, BecomeSupplier.class));
                         finish();
                     });
 

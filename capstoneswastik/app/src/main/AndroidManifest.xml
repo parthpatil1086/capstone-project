@@ -16,25 +16,46 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.Capstoneswastik">
+
+        <!-- 🔵 SPLASH ACTIVITY (LAUNCHER) -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- LOGIN ACTIVITY (NO launcher now) -->
+        <activity
+            android:name=".login"
+            android:exported="true"
+            android:theme="@style/Theme.Material3.Light.NoActionBar" />
+
+        <activity
+            android:name=".register"
+            android:exported="false"
+            android:theme="@style/Theme.Material3.Light.NoActionBar" />
+
+        <activity android:name=".MainActivity" />
         <activity android:name=".ProcurementListActivity"/>
+        <activity android:name=".ProcurementDetailsActivity" android:exported="false" />
+        <activity android:name=".ViewRequestsActivity" android:exported="false" />
+        <activity android:name=".SupplierPage" android:exported="false" />
+        <activity android:name=".register_supplier" android:exported="false" />
+        <activity android:name=".BecomeSupplier" android:exported="false" />
+        <activity android:name=".NotificationStoreActivity" android:exported="false" />
+        <activity android:name=".OrderSuccessActivity" android:exported="false" />
+        <activity android:name=".CheckoutProduct" android:exported="false" />
         <activity
-            android:name=".ProcurementDetailsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ViewRequestsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SupplierPage"
-            android:exported="false" />
-        <activity
-            android:name=".register_supplier"
-            android:exported="false" />
-        <activity
-            android:name=".BecomeSupplier"
-            android:exported="false" />
-        <activity
-            android:name=".NotificationStoreActivity"
-            android:exported="false" />
+            android:name=".Address_fill"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".Product_details" android:exported="false" />
+        <activity android:name=".product_list" android:exported="false" />
+        <activity android:name=".MyOrdersActivity" />
+        <activity android:name=".OrderDetailsActivity" />
 
         <service
             android:name=".MyFirebaseMessagingService"
@@ -44,38 +65,5 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".OrderSuccessActivity"
-            android:exported="false" />
-        <activity
-            android:name=".CheckoutProduct"
-            android:exported="false" />
-        <activity
-            android:name=".Address_fill"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".Product_details"
-            android:exported="false" />
-        <activity
-            android:name=".product_list"
-            android:exported="false" />
-        <activity android:name=".MyOrdersActivity" />
-        <activity android:name=".OrderDetailsActivity" />
-        <activity
-            android:name=".login"
-            android:exported="true"
-            android:theme="@style/Theme.Material3.Light.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".register"
-            android:exported="false"
-            android:theme="@style/Theme.Material3.Light.NoActionBar" />
-        <activity android:name=".MainActivity" />
     </application>
-
 </manifest>

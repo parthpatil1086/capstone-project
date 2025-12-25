@@ -27,7 +27,6 @@
         android:elevation="4dp"
         android:clipToPadding="false"/>
 
-    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerProduct"
         android:layout_width="match_parent"

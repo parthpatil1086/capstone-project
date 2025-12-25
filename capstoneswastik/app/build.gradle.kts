@@ -41,7 +41,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
-    // Firebase BOM
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.0.1")
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
 
     // Firebase dependencies

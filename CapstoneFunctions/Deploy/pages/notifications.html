@@ -1,0 +1,70 @@
+<style>
+  .container { background: #fff; padding:20px; border-radius:10px; box-shadow:0 0 10px #a5d6a7; margin-bottom:30px; }
+  .container label { font-weight:bold; display:block; margin-top:15px; }
+  .container input, .container textarea { width:100%; padding:10px; margin-top:5px; border:1px solid #9ccc65; border-radius:5px; }
+  .container textarea { height:120px; resize:none; }
+  .container button { margin-top:20px; padding:10px 20px; border:none; background:#43a047; color:white; border-radius:5px; cursor:pointer; }
+  .container button:hover { background:#2e7d32; }
+  .history-container { background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px #c8e6c9; }
+  .notification-card { border:1px solid #9ccc65; border-radius:6px; padding:12px; margin-bottom:12px; background:#f9fff8; position:relative; }
+  .notification-card h3 { margin:0 0 4px 0; color:#2e7d32; }
+  .notification-card p { margin:0; color:#424242; }
+  .notification-card small { display:block; margin-top:6px; color:#757575; font-size:12px; }
+  .delete-btn { position:absolute; top:10px; right:10px; padding:4px 10px; font-size:12px; background:#e53935; color:white; border:none; border-radius:4px; cursor:pointer; }
+  .delete-btn:hover { background:#b71c1c; }
+</style>
+
+<div class="container">
+  <h2>Create Notification</h2>
+  <label>Title</label>
+  <input type="text" id="title" placeholder="Enter title" />
+  <label>Message</label>
+  <textarea id="message" placeholder="Enter message"></textarea>
+  <button onclick="sendNotification()">Send Notification</button>
+</div>
+
+<div class="history-container">
+  <h2>Notification History</h2>
+  <div id="notificationHistory"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "...",
+    authDomain: "...",
+    projectId: "...",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "..."
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.sendNotification = async () => {
+    const title = document.getElementById("title").value.trim();
+    const body = document.getElementById("message").value.trim();
+    if(!title || !body){ alert("Title and message required!"); return; }
+    await addDoc(collection(db,"notifications"), {title, body, timestamp:Date.now()});
+    document.getElementById("title").value="";
+    document.getElementById("message").value="";
+  }
+
+  const historyDiv = document.getElementById("notificationHistory");
+  onSnapshot(collection(db,"notifications"), snapshot => {
+    historyDiv.innerHTML="";
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const card = document.createElement("div");
+      card.className="notification-card";
+      card.innerHTML=`<h3>${data.title}</h3><p>${data.body}</p><small>${new Date(data.timestamp).toLocaleString()}</small>
+      <button class="delete-btn" onclick="deleteNotification('${docSnap.id}')">Delete</button>`;
+      historyDiv.appendChild(card);
+    });
+  });
+
+  window.deleteNotification = async (id) => { if(confirm("Delete this notification?")) await deleteDoc(doc(db,"notifications",id)); }
+</script>

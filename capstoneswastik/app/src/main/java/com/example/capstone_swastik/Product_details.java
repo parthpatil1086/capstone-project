@@ -54,6 +54,7 @@ public class Product_details extends AppCompatActivity {
             // Pass product info to CheckoutProduct
             intent.putExtra("name", name);
             intent.putExtra("price", price);
+            intent.putExtra("productId", getIntent().getStringExtra("docId"));
             intent.putExtra("img", img);
             intent.putExtra("description", description);
 

@@ -19,7 +19,7 @@
     <string name="no_orders_found">कोणतीही ऑर्डर आढळली नाही</string>
     <string name="my_orders">माझ्या ऑर्डर्स</string>
     <string name="notifications">सूचना</string>
-    <string name="product_name">उत्पादनाचे नाव</string>
+    <string name="product_name">उत्पादनाचे नाव : </string>
     <string name="my_requests">माझ्या विनंत्या</string>
     <string name="sugarcane_supplier_request">ऊस पुरवठादार विनंती</string>
     <string name="area_of_field_in_acres">शेतीचे क्षेत्रफळ (एकर)</string>
@@ -36,7 +36,7 @@
     <string name="buy_now">आत्ता खरेदी करा</string>
     <string name="my_procurement_history">ऊस नोंद इतिहास</string>
     <string name="generate_bill_pdf">बिल PDF तयार करा</string>
-    <string name="back_to_home_page">मुख्य पृष्ठावर परत जा</string>
+    <string name="back_to_home_page">पुरवठादार पृष्ठावर जा</string>
     <string name="order_summary">ऑर्डर सारांश</string>
     <string name="delivery_address">वितरण पत्ता</string>
     <string name="proceed_to_farm_visit_request">
@@ -68,11 +68,6 @@
     </string>
 
     <string name="cancel_order">ऑर्डर रद्द करा</string>
-    <string name="shreesvastik_agro_sakharale">
-        श्रीस्वस्तिक अ‍ॅग्रो साखराळे
-    </string>
-    <string name="bill_receipt_of_sugarcane">ऊस बिल पावती</string>
-    <string name="bill_number">बिल क्रमांक: </string>
     <string name="pdf_saved_successfully">PDF यशस्वीरित्या सेव्ह झाले</string>
     <string name="go_to_main_page">मुख्य पृष्ठावर जा</string>
     <string name="registered_your_supplier_id">
@@ -94,5 +89,5 @@
         गाव / शहर / जिल्हा भरा
     </string>
     <string name="marathi_language">मराठी भाषा</string>
-
+    <string name="back_to_home">मुख्यपृष्ठावर परत</string>
 </resources>

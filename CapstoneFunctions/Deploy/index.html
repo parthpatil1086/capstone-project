@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Sugarcane Supplies</title>
+  <style>
+    /* Global Layout CSS */
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #f5f7fa;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: #1e5a23;
+      color: white;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      padding: 12px 25px;
+      font-size: 17px;
+      color: white;
+      display: block;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background-color: #14501a;
+      font-weight: bold;
+    }
+
+    .main-container {
+      margin-left: 260px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background-color: #2b7a33;
+      color: white;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+    }
+
+    .content-area {
+      padding: 20px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>Admin Panel</h2>
+    <a href="#" onclick="loadPageFromPages('dashboard', this)" class="active">Dashboard Overview</a>
+    <a href="#" onclick="loadPageFromPages('procurement', this)">Raw Material Procurement</a>
+    <a href="#" onclick="loadPageFromPages('production', this)">Production & Stock</a>
+    <a href="#" onclick="loadPageFromPages('sales', this)">Sales Information</a>
+    <a href="#" onclick="loadPageFromPages('requests', this)">Supplier Request Approval</a>
+    <a href="#" onclick="loadPageFromPages('order', this)">Order Status Management</a>
+    <a href="#" onclick="loadPageFromPages('accounts', this)">Payment & Accounts</a>
+    <a href="#" onclick="loadPageFromPages('suppliersCustomer', this)">Supplier & Customer List</a>
+    <a href="#" onclick="loadPageFromPages('notifications', this)">Send Notification</a>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div style="display:flex; align-items:center; gap:15px;">
+        <img src="C:\Users\Hp\Desktop\6th SEM\CapstoneFunctions\Shree_swastik-removebg-preview.png" alt="Logo" style="width:45px; height:45px; border-radius:50%; background:white;">
+        <div style="font-weight:600; font-size:22px;">SwastikAgro</div>
+      </div>
+      <div>Admin ▾</div>
+    </header>
+
+    <div id="content-area" class="content-area"></div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

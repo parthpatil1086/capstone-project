@@ -1,174 +1,246 @@
 package com.example.capstone_swastik;
 
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
-import android.widget.Button; // Don't forget this import
+import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentReference; // Don't forget this import
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class OrderDetailsActivity extends AppCompatActivity {
 
-    TextView tvPName, tvPPrice, tvQty, tvTotal, tvAddress, tvDate, tvStatus;
     ImageView imgProduct;
+    TextView tvPName, tvPPrice, tvQty, tvTotal, tvAddress, tvDate;
+    Button btnCancelOrder;
     ProgressBar progressBar;
-    Button btnCancelOrder; // *** ADDED: Declare the button ***
-    String currentOrderID; // *** ADDED: To store the order ID globally for cancel method ***
+
+    FirebaseFirestore db;
+    String currentOrderID;
+
+    Handler handler = new Handler();
+    int animDelay = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_details);
 
+        imgProduct = findViewById(R.id.imgProduct);
         tvPName = findViewById(R.id.tvPName);
         tvPPrice = findViewById(R.id.tvPPrice);
         tvQty = findViewById(R.id.tvQty);
         tvTotal = findViewById(R.id.tvTotal);
         tvAddress = findViewById(R.id.tvAddress);
         tvDate = findViewById(R.id.tvDate);
-        tvStatus = findViewById(R.id.tvStatus);
-        imgProduct = findViewById(R.id.imgProduct);
+        btnCancelOrder = findViewById(R.id.btnCancelOrder);
         progressBar = findViewById(R.id.progressBar);
-        btnCancelOrder = findViewById(R.id.btnCancelOrder); // *** ADDED: Initialize the button ***
 
-        String orderID = getIntent().getStringExtra("orderID");
-        if (orderID != null) {
-            currentOrderID = orderID; // Store the ID
-            loadDetails(orderID);
-        } else {
-            Toast.makeText(this, "Invalid order ID", Toast.LENGTH_SHORT).show();
-            finish(); // Close activity if ID is missing
-        }
+        db = FirebaseFirestore.getInstance();
 
-        // *** ADDED: Set click listener for the cancel button ***
-        btnCancelOrder.setOnClickListener(v -> cancelOrder());
-    }
-
-    private void loadDetails(String id) {
-        progressBar.setVisibility(View.VISIBLE);
-        btnCancelOrder.setVisibility(View.GONE); // Hide button while loading
-
-        FirebaseFirestore.getInstance()
-                .collection("orders")
-                .document(id)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    progressBar.setVisibility(View.GONE);
-
-                    if (doc.exists()) {
-                        // ... (Existing code for populating TextViews) ...
-
-                        // Product name
-                        tvPName.setText(doc.getString("productName"));
-
-                        // Price
-                        Number price = doc.get("productPrice") instanceof Number ? (Number) doc.get("productPrice") : 0;
-                        tvPPrice.setText(getString(R.string.product_name)+ price.intValue());
-
-                        // Quantity
-                        Number qty = doc.get("quantity") instanceof Number ? (Number) doc.get("quantity") : 1;
-                        tvQty.setText(getString(R.string.product_price)+ qty.intValue());
-
-                        // Total
-                        Number total = doc.get("totalAmount") instanceof Number ? (Number) doc.get("totalAmount") : 0;
-                        tvTotal.setText(getString(R.string.total_amount) + total.intValue());
-
-                        // Address
-                        tvAddress.setText(
-                                "Delivery Details:\n" +
-                                        doc.getString("name") + "\n" +
-                                        doc.getString("phone") + "\n" +
-                                        doc.getString("address") + "\nPIN: " + doc.getString("pin")
-                        );
-
-                        // Date
-                        Long timestamp = doc.getLong("timestamp");
-                        if (timestamp != null) {
-                            String formattedDate = new SimpleDateFormat("dd MMM yyyy, hh:mm a").format(new Date(timestamp));
-                            tvDate.setText("Order Date: " + formattedDate);
-                        }
-
-
-                        // Status
-                        String status = doc.getString("status") != null ? doc.getString("status") : "Pending";
-                        tvStatus.setText("Status: " + status);
-
-                        // *** ADDED LOGIC: Show button only if status is Pending ***
-                        if ("Pending".equalsIgnoreCase(status)) {
-                            btnCancelOrder.setVisibility(View.VISIBLE);
-                        } else {
-                            btnCancelOrder.setVisibility(View.GONE);
-                        }
-                        // *********************************************************
-
-                        // Load product image safely
-                        Object imgObj = doc.get("image");
-                        int imageRes = R.drawable.shree_swastik_default; // fallback
-
-                        if (imgObj instanceof Number) {
-                            imageRes = ((Number) imgObj).intValue(); // old stored int
-                        } else if (imgObj instanceof String) {
-                            String imageName = (String) imgObj;
-                            int resId = getResources().getIdentifier(imageName, "drawable", getPackageName());
-                            if (resId != 0) imageRes = resId;
-                        }
-
-                        imgProduct.setImageResource(imageRes);
-
-                    } else {
-                        Toast.makeText(this, "Order not found", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Failed to load order details", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    // *** ADDED: Method to cancel the order ***
-    private void cancelOrder() {
+        currentOrderID = getIntent().getStringExtra("orderID");
         if (currentOrderID == null) {
-            Toast.makeText(this, "Cannot cancel. Order ID is missing.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid Order", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
+        loadOrderDetails(currentOrderID);
+        btnCancelOrder.setOnClickListener(v -> cancelOrder());
+    }
+
+    private void loadOrderDetails(String orderId) {
         progressBar.setVisibility(View.VISIBLE);
-        btnCancelOrder.setEnabled(false); // Prevent multiple clicks
 
-        DocumentReference orderRef = FirebaseFirestore.getInstance().collection("orders").document(currentOrderID);
+        db.collection("orders")
+                .document(orderId)
+                .addSnapshotListener(this, (doc, error) -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (doc == null || !doc.exists()) return;
 
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", "Cancelled"); // Set the new status
-        updates.put("cancellationTime", System.currentTimeMillis()); // Optional: Log cancellation time
+                    tvPName.setText(doc.getString("productName"));
 
-        orderRef.update(updates)
+                    long price = doc.getLong("productPrice") != null ? doc.getLong("productPrice") : 0;
+                    long qty = doc.getLong("quantity") != null ? doc.getLong("quantity") : 1;
+                    long total = doc.getLong("totalAmount") != null ? doc.getLong("totalAmount") : 0;
+
+                    tvPPrice.setText("Price: ₹" + price);
+                    tvQty.setText("Qty: " + qty);
+                    tvTotal.setText("Total: ₹" + total);
+
+                    tvAddress.setText(
+                            doc.getString("name") + "\n" +
+                                    doc.getString("phone") + "\n" +
+                                    doc.getString("address") + "\nPIN: " +
+                                    doc.getString("pin")
+                    );
+
+                    Long time = doc.getLong("placedAt");
+                    if (time != null) {
+                        tvDate.setText("Order Date: " +
+                                new SimpleDateFormat("dd MMM yyyy, hh:mm a",
+                                        Locale.getDefault()).format(new Date(time)));
+                    }
+
+                    // ✅ SAFE IMAGE LOADING
+                    Object imgObj = doc.get("image");
+                    if (imgObj instanceof String) {
+                        Glide.with(this)
+                                .load((String) imgObj)
+                                .placeholder(R.drawable.shree_swastik_default)
+                                .error(R.drawable.shree_swastik_default)
+                                .centerCrop()
+                                .into(imgProduct);
+                    } else if (imgObj instanceof Number) {
+                        imgProduct.setImageResource(((Number) imgObj).intValue());
+                    } else {
+                        imgProduct.setImageResource(R.drawable.shree_swastik_default);
+                    }
+
+                    String status = doc.getString("status");
+
+                    animDelay = 0;
+                    if ("Cancelled".equalsIgnoreCase(status)) {
+                        updateTimelineCancelled(doc);
+                    } else {
+                        updateTimelineAnimated(doc, status);
+                    }
+
+                    btnCancelOrder.setVisibility(
+                            status != null &&
+                                    !status.equalsIgnoreCase("Delivered") &&
+                                    !status.equalsIgnoreCase("Cancelled")
+                                    ? View.VISIBLE : View.GONE
+                    );
+                });
+    }
+
+    /* ===================== TIMELINE ===================== */
+
+    private void updateTimelineAnimated(DocumentSnapshot doc, String status) {
+        animateStepWithDelay(R.id.stepPlaced, "Order Placed", true, doc.getLong("placedAt"));
+        animateStepWithDelay(R.id.stepConfirmed, "Order Confirmed",
+                status.matches("Confirmed|Dispatched|In Transit|Delivered"),
+                doc.getLong("confirmedAt"));
+        animateStepWithDelay(R.id.stepDispatched, "Dispatched",
+                status.matches("Dispatched|In Transit|Delivered"),
+                doc.getLong("dispatchedAt"));
+        animateStepWithDelay(R.id.stepTransit, "In Transit",
+                status.matches("In Transit|Delivered"),
+                doc.getLong("inTransitAt"));
+        animateStepWithDelay(R.id.stepDelivered, "Delivered",
+                "Delivered".equalsIgnoreCase(status),
+                doc.getLong("deliveredAt"));
+    }
+
+    private void updateTimelineCancelled(DocumentSnapshot doc) {
+        // Placed step ✅
+        updateStep(R.id.stepPlaced, "Order Placed", true, doc.getLong("placedAt"));
+        // Pending steps ⏳
+        updateStep(R.id.stepConfirmed, "Order Confirmed", false, doc.getLong("confirmedAt"));
+        updateStep(R.id.stepDispatched, "Dispatched", false, doc.getLong("dispatchedAt"));
+        updateStep(R.id.stepTransit, "In Transit", false, doc.getLong("inTransitAt"));
+
+        // Cancelled step ❌
+        View stepDelivered = findViewById(R.id.stepDelivered);
+        ((TextView) stepDelivered.findViewById(R.id.tvStatusTitle)).setText("Cancelled");
+        ((ImageView) stepDelivered.findViewById(R.id.imgStatus))
+                .setImageResource(R.drawable.outline_cancel_24);
+        stepDelivered.findViewById(R.id.viewLine).setVisibility(View.GONE);
+        ((TextView) stepDelivered.findViewById(R.id.tvTime))
+                .setText(new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
+                        .format(new Date(doc.getLong("cancelledAt") != null
+                                ? doc.getLong("cancelledAt") : System.currentTimeMillis())));
+    }
+
+    private void animateStepWithDelay(int stepId, String title, boolean completed, @Nullable Long time) {
+        handler.postDelayed(() -> updateStep(stepId, title, completed, time), animDelay);
+        animDelay += 450;
+    }
+
+    private void updateStep(int stepId, String title, boolean completed, @Nullable Long time) {
+        View step = findViewById(stepId);
+        ImageView imgStatus = step.findViewById(R.id.imgStatus);
+        TextView tvTitle = step.findViewById(R.id.tvStatusTitle);
+        TextView tvTime = step.findViewById(R.id.tvTime);
+        View line = step.findViewById(R.id.viewLine);
+
+        tvTitle.setText(title);
+        imgStatus.setImageResource(
+                completed ? R.drawable.ic_done_green : R.drawable.ic_pending
+        );
+
+        int color = completed
+                ? ContextCompat.getColor(this, R.color.teal_700)
+                : ContextCompat.getColor(this, android.R.color.darker_gray);
+
+        if (line != null) {
+            line.setBackgroundColor(color);
+            line.setVisibility("Delivered".equalsIgnoreCase(title) || "Cancelled".equalsIgnoreCase(title)
+                    ? View.GONE : View.VISIBLE);
+        }
+
+        if (completed) animateIcon(imgStatus);
+
+        if (time != null) {
+            tvTime.setText(new SimpleDateFormat("dd MMM, hh:mm a",
+                    Locale.getDefault()).format(new Date(time)));
+        } else tvTime.setText("");
+    }
+
+    private void animateIcon(View view) {
+        PropertyValuesHolder sx = PropertyValuesHolder.ofFloat("scaleX", 0.5f, 1f);
+        PropertyValuesHolder sy = PropertyValuesHolder.ofFloat("scaleY", 0.5f, 1f);
+        ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(view, sx, sy);
+        anim.setDuration(300);
+        anim.setInterpolator(new DecelerateInterpolator());
+        anim.start();
+    }
+
+    /* ===================== CANCEL ORDER ===================== */
+
+    private void cancelOrder() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        DocumentReference ref = db.collection("orders").document(currentOrderID);
+        Map<String, Object> update = new HashMap<>();
+        update.put("status", "Cancelled");
+        update.put("cancelledAt", System.currentTimeMillis());
+
+        ref.update(update)
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(OrderDetailsActivity.this, R.string.order_has_been_cancelled_successfully, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,
+                            "Order cancelled successfully",
+                            Toast.LENGTH_LONG).show();
 
-                    // Update UI immediately
-                    tvStatus.setText("Status: Cancelled");
-                    btnCancelOrder.setVisibility(View.GONE); // Hide the button
-
-                    // You might want to call finish() or navigate back here
+                    db.collection("orders").document(currentOrderID).get()
+                            .addOnSuccessListener(doc -> updateTimelineCancelled(doc));
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
-                    btnCancelOrder.setEnabled(true); // Re-enable button on failure
-                    Toast.makeText(OrderDetailsActivity.this, "Failed to cancel order: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,
+                            "Failed: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
                 });
     }
-    // *****************************************
 }

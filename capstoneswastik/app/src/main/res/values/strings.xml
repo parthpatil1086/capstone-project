@@ -18,7 +18,7 @@
     <string name="no_orders_found">No orders found</string>
     <string name="my_orders">My Orders</string>
     <string name="notifications">Notifications</string>
-    <string name="product_name">Product Name</string>
+    <string name="product_name">Product Name : </string>
     <string name="my_requests">My Requests</string>
     <string name="sugarcane_supplier_request">Sugarcane Supplier Request</string>
     <string name="area_of_field_in_acres">Area of Field (in acres)</string>
@@ -33,7 +33,7 @@
     <string name="buy_now">Buy Now</string>
     <string name="my_procurement_history">Sugarcane Entry History</string>
     <string name="generate_bill_pdf">Generate Bill PDF</string>
-    <string name="back_to_home_page">Back to Home Page</string>
+    <string name="back_to_home_page">Go to Supplier page</string>
     <string name="order_summary">Order Summary</string>
     <string name="delivery_address">Delivery Address</string>
     <string name="proceed_to_farm_visit_request">Proceed to Farm Visit Request</string>
@@ -57,9 +57,6 @@
     </string>
 
     <string name="cancel_order">Cancel Order</string>
-    <string name="shreesvastik_agro_sakharale">Shreesvastik Agro Sakharale</string>
-    <string name="bill_receipt_of_sugarcane">Sugarcane Bill Receipt</string>
-    <string name="bill_number">Bill Number: </string>
     <string name="pdf_saved_successfully">PDF saved successfully</string>
     <string name="go_to_main_page">Go to Main Page</string>
     <string name="registered_your_supplier_id">Registered! Your Supplier ID: </string>
@@ -73,5 +70,6 @@
     <string name="enter_months_e_g_10">Enter months (e.g., 10)</string>
     <string name="enter_village_city_district">Enter village / city / district</string>
     <string name="marathi_language">Marathi Language</string>
+    <string name="back_to_home">back to home</string>
 
 </resources>

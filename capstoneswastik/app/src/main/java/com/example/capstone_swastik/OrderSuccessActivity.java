@@ -36,8 +36,7 @@ public class OrderSuccessActivity extends AppCompatActivity {
 
         // Set dynamic success message
         tvMessage.setText(
-                "Hello " + userName +
-                        ", your order for \"" + productName +
+                "Your order for \"" + productName +
                         "\" has been placed Successfully!\n\nTotal Amount: ₹ " + totalAmount
         );
 

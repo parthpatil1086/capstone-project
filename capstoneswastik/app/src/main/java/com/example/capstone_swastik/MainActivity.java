@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -42,12 +43,10 @@ public class MainActivity extends AppCompatActivity {
 
     TextView user_name;
     ImageView nav_home, nav_browse, nav_notifications, nav_menu, nav_cart;
-
     String userID;
     FirebaseAuth auth;
     FirebaseFirestore ftstore;
 
-    /* ---------------- LANGUAGE PERSIST ---------------- */
     @Override
     protected void attachBaseContext(Context newBase) {
         String lang = LocaleHelper.getLanguage(newBase);
@@ -73,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
         userID = auth.getCurrentUser().getUid();
 
-        /* ---------------- USER NAME ---------------- */
         DocumentReference docRef =
                 ftstore.collection("users").document(userID);
 
@@ -86,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /* ---------------- NOTIFICATION PERMISSION ---------------- */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.POST_NOTIFICATIONS)
@@ -98,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        /* ---------------- BOTTOM NAV ---------------- */
         nav_home.setOnClickListener(v ->
                 Toast.makeText(this, R.string.home, Toast.LENGTH_SHORT).show());
 
@@ -118,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showBottomMenu() {
-
         BottomSheetDialog dialog =
                 new BottomSheetDialog(this,
                         com.google.android.material.R.style.Theme_Design_BottomSheetDialog);
@@ -267,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
                 new NotificationCompat.Builder(this, channelId)
                         .setContentTitle(title)
                         .setContentText(message)
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setSmallIcon(R.drawable.ic_notifications)
                         .setAutoCancel(true);
 
         manager.notify((int) System.currentTimeMillis(), builder.build());
