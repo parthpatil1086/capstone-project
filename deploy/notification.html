@@ -1,0 +1,206 @@
+<style>
+/* Reset for iframe */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: transparent;
+}
+
+/* Page title */
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1e5a23;
+    margin-bottom: 15px;
+}
+
+/* Main container */
+.container {
+    width: 100%;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px #a5d6a7;
+    margin-bottom: 25px;
+}
+
+/* History container */
+.history-container {
+    width: 100%;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px #c8e6c9;
+}
+
+/* Form elements */
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 15px;
+    color: #2e7d32;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #9ccc65;
+    border-radius: 6px;
+}
+
+textarea {
+    height: 120px;
+    resize: none;
+}
+
+/* Button */
+button {
+    margin-top: 20px;
+    padding: 10px 22px;
+    border: none;
+    background: #43a047;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #2e7d32;
+}
+
+/* Notification card */
+.notification-card {
+    border: 1px solid #9ccc65;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: #f9fff8;
+    position: relative;
+}
+
+.notification-card h3 {
+    margin: 0 0 4px 0;
+    color: #2e7d32;
+}
+
+.notification-card p {
+    margin: 0;
+    color: #424242;
+}
+
+.notification-card small {
+    display: block;
+    margin-top: 6px;
+    color: #757575;
+    font-size: 12px;
+}
+
+/* Delete button */
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
+    font-size: 12px;
+    background: #e53935;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background: #b71c1c;
+}
+</style>
+<!-- 
+<h2 class="page-title">Send Notification</h2> -->
+
+<div class="container">
+    <label>Title</label>
+    <input type="text" id="title" placeholder="Enter title" />
+
+    <label>Message</label>
+    <textarea id="message" placeholder="Enter message"></textarea>
+
+    <button onclick="sendNotification()">Send Notification</button>
+</div>
+
+<div class="history-container">
+    <h3 style="color:#1e5a23;margin-bottom:10px;">Notification History</h3>
+    <div id="notificationHistory"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
+    authDomain: "capstone-swastik.firebaseapp.com",
+    projectId: "capstone-swastik",
+    storageBucket: "capstone-swastik.appspot.com",
+    messagingSenderId: "178017041601",
+    appId: "1:178017041601:web:342d8cfe9938b6813a6840"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* Send notification */
+function sendNotification() {
+    const title = document.getElementById("title").value.trim();
+    const body = document.getElementById("message").value.trim();
+
+    if (!title || !body) {
+        alert("Title and message are required!");
+        return;
+    }
+
+    db.collection("notifications").add({
+        title,
+        body,
+        timestamp: Date.now()
+    }).then(() => {
+        document.getElementById("title").value = "";
+        document.getElementById("message").value = "";
+    });
+}
+
+/* Load notifications */
+function loadNotifications() {
+    const historyDiv = document.getElementById("notificationHistory");
+    db.collection("notifications")
+        .orderBy("timestamp", "desc")
+        .onSnapshot(snapshot => {
+            historyDiv.innerHTML = "";
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                historyDiv.innerHTML += `
+                    <div class="notification-card">
+                        <h3>${data.title}</h3>
+                        <p>${data.body}</p>
+                        <small>${new Date(data.timestamp).toLocaleString()}</small>
+                        <button class="delete-btn" onclick="deleteNotification('${doc.id}')">Delete</button>
+                    </div>
+                `;
+            });
+        });
+}
+
+function deleteNotification(id) {
+    if (confirm("Delete this notification?")) {
+        db.collection("notifications").doc(id).delete();
+    }
+}
+
+loadNotifications();
+</script>

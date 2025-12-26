@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supplier Requests</title>
+
+<style>
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: transparent;
+}
+
+/* ---------- PAGE WRAPPER ---------- */
+.page {
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* ---------- CARD ---------- */
+.card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* ---------- TABLE ---------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    border-bottom: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #f1f1f1;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+    margin-right: 5px;
+}
+
+.approve { background: #28a745; }
+.reject  { background: #dc3545; }
+.visit   { background: #007bff; }
+
+/* ---------- ALERT ---------- */
+.alert-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 22px;
+    border-radius: 8px;
+    background: #28a745;
+    color: #fff;
+    display: none;
+    z-index: 999;
+}
+.alert-error { background: #dc3545; }
+
+/* ---------- VISIT MODAL ---------- */
+#visitModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    width: 340px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+}
+
+.close-btn {
+    background: #333;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="alert" class="alert-box"></div>
+
+<!-- VISIT MODAL -->
+<div id="visitModal">
+    <div class="modal-content">
+        <h3>Select Visit Date</h3>
+        <input type="date" id="visitDate">
+        <br>
+        <button class="btn approve" id="sendVisitBtn">Save</button>
+        <div class="close-btn" id="closeVisitBtn">Close</div>
+    </div>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="page">
+    <!-- <div class="card">
+        <h2>Supplier / Farmer Request Approval</h2> -->
+
+        <table id="requestTable">
+            <tr>
+                <th>Supplier</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Area</th>
+                <th>Months</th>
+                <th>Visit Date</th>
+                <th>Action</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
+  authDomain: "capstone-swastik.firebaseapp.com",
+  projectId: "capstone-swastik",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ALERT */
+function showAlert(msg, error=false){
+    const a = document.getElementById("alert");
+    a.innerText = msg;
+    a.className = error ? "alert-box alert-error" : "alert-box";
+    a.style.display = "block";
+    setTimeout(()=>a.style.display="none",2500);
+}
+
+/* MODAL */
+let currentId = "";
+const modal = document.getElementById("visitModal");
+
+function openVisit(id, date=""){
+    currentId = id;
+    visitDate.value = date;
+    modal.style.display = "flex";
+}
+closeVisitBtn.onclick = () => modal.style.display="none";
+
+sendVisitBtn.onclick = async () => {
+    if(!visitDate.value) return showAlert("Select date", true);
+    await updateDoc(doc(db,"supplier_requests",currentId),{ visitDate: visitDate.value });
+    showAlert("Visit Date Saved");
+    modal.style.display="none";
+};
+
+/* DATA */
+const table = document.getElementById("requestTable");
+const q = query(collection(db,"supplier_requests"), orderBy("timestamp","desc"));
+
+onSnapshot(q, snap => {
+    table.innerHTML = table.rows[0].outerHTML;
+
+    snap.forEach(d => {
+        const s = d.data();
+        const r = document.createElement("tr");
+
+        r.innerHTML = `
+        <td>${s.supplierName || "-"}</td>
+        <td>${s.supplierPhone || "-"}</td>
+        <td>${s.location || "-"}</td>
+        <td>${s.areaInAcres || "-"} Acres</td>
+        <td>${s.growthMonths || "-"}</td>
+        <td>${s.status==="Approved" ? (s.visitDate || "-") : "-"}</td>
+        <td>
+            <button class="btn approve">Approve</button>
+            <button class="btn reject">Reject</button>
+            <button class="btn visit" style="display:none">Visit</button>
+        </td>`;
+
+        table.appendChild(r);
+
+        const [approve, reject, visit] = r.querySelectorAll("button");
+
+        if(s.status==="Approved"){
+            approve.disabled = true;
+            visit.style.display = "inline-block";
+        }
+        if(s.status==="Rejected"){
+            approve.style.display = "none";
+            reject.disabled = true;
+        }
+
+        approve.onclick = async ()=>{
+            await updateDoc(doc(db,"supplier_requests",d.id),{ status:"Approved" });
+            showAlert("Approved");
+        };
+
+        reject.onclick = async ()=>{
+            await updateDoc(doc(db,"supplier_requests",d.id),{ status:"Rejected", visitDate:"" });
+            showAlert("Rejected", true);
+        };
+
+        visit.onclick = ()=> openVisit(d.id, s.visitDate || "");
+    });
+});
+</script>
+
+</body>
+</html>

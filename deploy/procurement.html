@@ -1,0 +1,333 @@
+<!-- IFRAME-SAFE PROCUREMENT PAGE -->
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: transparent;
+}
+
+/* Wrapper */
+.content-wrapper {
+    width: 100%;
+    padding: 20px;
+}
+
+/* Title */
+.page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 20px;
+}
+
+/* Tabs */
+.tab-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tab-buttons button {
+    padding: 10px 20px;
+    margin: 0 8px;
+    border: none;
+    border-radius: 8px;
+    background: #388e3c;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.tab-buttons button:hover {
+    background: #2e7d32;
+}
+
+.tab-buttons button.active {
+    background: #1b5e20;
+}
+
+/* Cards */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: #2e7d32;
+}
+
+/* Form */
+label {
+    font-weight: 600;
+    margin: 10px 0 5px;
+    display: block;
+    color: #1b5e20;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+input[readonly] {
+    background: #e0f2f1;
+    cursor: not-allowed;
+}
+
+/* Button */
+.btn {
+    padding: 12px 20px;
+    background: #388e3c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.btn:hover {
+    background: #2e7d32;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th, table td {
+    padding: 14px;
+    border-bottom: 1px solid #c8e6c9;
+    text-align: left;
+    font-size: 15px;
+    color: #2e7d32;
+}
+
+table th {
+    background: #dcedc8;
+}
+
+/* Search */
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+</style>
+
+<!-- <div class="content-wrapper">
+    <h2 class="page-title">Procurement</h2> -->
+
+    <!-- Tabs -->
+    <div class="tab-buttons">
+        <button id="entryBtn" class="active">Add Entry</button>
+        <button id="historyBtn">History</button>
+    </div>
+
+    <!-- Add Entry -->
+    <div id="entry" class="card">
+        <h3 class="card-title">Add Procurement Entry</h3>
+
+        <label>Select Supplier</label>
+        <select id="supplierDropdown"></select>
+
+        <label>Supplier ID</label>
+        <input type="text" id="supplierIdInput" placeholder="Auto / Manual">
+
+        <label>Date</label>
+        <input type="date" id="procDate">
+
+        <label>Quantity (kg / tons)</label>
+        <input type="number" id="quantity" min="0">
+
+        <label>Price per Unit</label>
+        <input type="number" id="price" value="3500" readonly>
+
+        <label>Total Amount</label>
+        <input type="number" id="total" readonly>
+
+        <button class="btn" id="addBtn">Add Procurement</button>
+    </div>
+
+    <!-- History -->
+    <div id="history" class="card" style="display:none;">
+        <h3 class="card-title">Procurement History</h3>
+
+        <input type="text" id="searchInput" placeholder="Search by Supplier / ID / Date...">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Supplier</th>
+                    <th>Supplier ID</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* Firebase */
+const firebaseConfig = {
+    apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
+    authDomain: "capstone-swastik.firebaseapp.com",
+    projectId: "capstone-swastik",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* Tabs */
+const entryBtn = document.getElementById('entryBtn');
+const historyBtn = document.getElementById('historyBtn');
+const entry = document.getElementById('entry');
+const history = document.getElementById('history');
+
+entryBtn.onclick = () => {
+    entry.style.display = 'block';
+    history.style.display = 'none';
+    entryBtn.classList.add('active');
+    historyBtn.classList.remove('active');
+};
+
+historyBtn.onclick = () => {
+    entry.style.display = 'none';
+    history.style.display = 'block';
+    entryBtn.classList.remove('active');
+    historyBtn.classList.add('active');
+    loadHistory();
+};
+
+/* Elements */
+const dropdown = document.getElementById("supplierDropdown");
+const supplierIdInput = document.getElementById("supplierIdInput");
+const quantityInput = document.getElementById("quantity");
+const priceInput = document.getElementById("price");
+const totalInput = document.getElementById("total");
+const addBtn = document.getElementById("addBtn");
+const historyBody = document.getElementById("historyBody");
+const searchInput = document.getElementById("searchInput");
+
+/* Maps */
+let supplierMap = {};
+let supplierUIDMap = {};
+
+/* Load suppliers */
+async function loadSuppliers() {
+    const snap = await getDocs(collection(db, "supplier"));
+    dropdown.innerHTML = `<option value="">Select Supplier</option>`;
+    snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const id = d.supplierID || d.supplierId || d.supplierid;
+        const name = d.name || "";
+        dropdown.innerHTML += `<option value="${id}">${name}</option>`;
+        supplierMap[id] = name;
+        supplierUIDMap[id] = docSnap.id;
+    });
+}
+
+/* Auto-fill */
+dropdown.onchange = () => {
+    supplierIdInput.value = dropdown.value;
+    calculateTotal();
+};
+
+supplierIdInput.oninput = () => {
+    for (let opt of dropdown.options) {
+        if (opt.value === supplierIdInput.value) {
+            dropdown.value = supplierIdInput.value;
+            calculateTotal();
+            return;
+        }
+    }
+};
+
+quantityInput.oninput = calculateTotal;
+function calculateTotal() {
+    totalInput.value = (Number(quantityInput.value) || 0) * (Number(priceInput.value) || 0);
+}
+
+/* Add */
+addBtn.onclick = async () => {
+    if (!supplierIdInput.value) return alert("Please select a supplier!");
+
+    await addDoc(collection(db, "procurement"), {
+        supplierId: supplierIdInput.value,
+        supplierName: supplierMap[supplierIdInput.value] || "",
+        date: document.getElementById("procDate").value,
+        quantity: Number(quantityInput.value),
+        pricePerUnit: Number(priceInput.value),
+        totalAmount: Number(totalInput.value),
+        status: "Pending",
+        timestamp: Date.now(),
+        userUID: supplierUIDMap[supplierIdInput.value] || ""
+    });
+
+    alert("Procurement Added! (Status: Pending)");
+    loadHistory();
+};
+
+/* History */
+async function loadHistory() {
+    historyBody.innerHTML = "";
+    const snap = await getDocs(query(collection(db, "procurement"), orderBy("timestamp", "desc")));
+    snap.forEach(docSnap => {
+        const d = docSnap.data();
+        historyBody.innerHTML += `
+        <tr>
+            <td>${d.date}</td>
+            <td>${supplierMap[d.supplierId] || d.supplierName}</td>
+            <td>${d.supplierId}</td>
+            <td>${d.quantity}</td>
+            <td>${d.pricePerUnit}</td>
+            <td>${d.totalAmount}</td>
+            <td>${d.status}</td>
+        </tr>`;
+    });
+    applyHistorySearch();
+}
+
+/* Search */
+searchInput.oninput = applyHistorySearch;
+function applyHistorySearch() {
+    const filter = searchInput.value.toLowerCase();
+    document.querySelectorAll("#historyBody tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
+    });
+}
+
+/* Init */
+loadSuppliers();
+</script>
