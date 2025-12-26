@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,13 +48,15 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseFirestore ftstore;
 
+    private static final String PREFS_NAME = "app_prefs";
+    private static final String FIRST_LAUNCH_KEY = "first_launch";
+
     @Override
     protected void attachBaseContext(Context newBase) {
         String lang = LocaleHelper.getLanguage(newBase);
         LocaleHelper.setLocale(newBase, lang);
         super.attachBaseContext(newBase);
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +74,14 @@ public class MainActivity extends AppCompatActivity {
         nav_cart = findViewById(R.id.nav_cart);
 
         userID = auth.getCurrentUser().getUid();
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean firstLaunch = prefs.getBoolean(FIRST_LAUNCH_KEY, true);
+
+        if (firstLaunch) {
+            prefs.edit().putBoolean(FIRST_LAUNCH_KEY, false).apply();
+            recreate();
+        }
 
         DocumentReference docRef =
                 ftstore.collection("users").document(userID);

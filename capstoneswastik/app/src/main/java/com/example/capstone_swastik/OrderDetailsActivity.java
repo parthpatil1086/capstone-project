@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -68,6 +69,8 @@ public class OrderDetailsActivity extends AppCompatActivity {
         btnCancelOrder.setOnClickListener(v -> cancelOrder());
     }
 
+    /* ===================== LOAD ORDER DETAILS ===================== */
+
     private void loadOrderDetails(String orderId) {
         progressBar.setVisibility(View.VISIBLE);
 
@@ -79,9 +82,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
                     tvPName.setText(doc.getString("productName"));
 
-                    long price = doc.getLong("productPrice") != null ? doc.getLong("productPrice") : 0;
-                    long qty = doc.getLong("quantity") != null ? doc.getLong("quantity") : 1;
-                    long total = doc.getLong("totalAmount") != null ? doc.getLong("totalAmount") : 0;
+                    long price = getSafeLong(doc, "productPrice", 0);
+                    long qty = getSafeLong(doc, "quantity", 1);
+                    long total = getSafeLong(doc, "totalAmount", 0);
 
                     tvPPrice.setText("Price: ₹" + price);
                     tvQty.setText("Qty: " + qty);
@@ -94,14 +97,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
                                     doc.getString("pin")
                     );
 
-                    Long time = doc.getLong("placedAt");
-                    if (time != null) {
+                    Long placedTime = getTimestampMillis(doc, "placedAt");
+                    if (placedTime != null) {
                         tvDate.setText("Order Date: " +
                                 new SimpleDateFormat("dd MMM yyyy, hh:mm a",
-                                        Locale.getDefault()).format(new Date(time)));
+                                        Locale.getDefault()).format(new Date(placedTime)));
                     }
 
-                    // ✅ SAFE IMAGE LOADING
+                    // ✅ Safe image loading
                     Object imgObj = doc.get("image");
                     if (imgObj instanceof String) {
                         Glide.with(this)
@@ -134,42 +137,39 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 });
     }
 
-    /* ===================== TIMELINE ===================== */
+    /* ===================== TIMELINE UPDATES ===================== */
 
     private void updateTimelineAnimated(DocumentSnapshot doc, String status) {
-        animateStepWithDelay(R.id.stepPlaced, "Order Placed", true, doc.getLong("placedAt"));
+        animateStepWithDelay(R.id.stepPlaced, "Order Placed", true, getTimestampMillis(doc, "placedAt"));
         animateStepWithDelay(R.id.stepConfirmed, "Order Confirmed",
                 status.matches("Confirmed|Dispatched|In Transit|Delivered"),
-                doc.getLong("confirmedAt"));
+                getTimestampMillis(doc, "confirmedAt"));
         animateStepWithDelay(R.id.stepDispatched, "Dispatched",
                 status.matches("Dispatched|In Transit|Delivered"),
-                doc.getLong("dispatchedAt"));
+                getTimestampMillis(doc, "dispatchedAt"));
         animateStepWithDelay(R.id.stepTransit, "In Transit",
                 status.matches("In Transit|Delivered"),
-                doc.getLong("inTransitAt"));
+                getTimestampMillis(doc, "inTransitAt"));
         animateStepWithDelay(R.id.stepDelivered, "Delivered",
                 "Delivered".equalsIgnoreCase(status),
-                doc.getLong("deliveredAt"));
+                getTimestampMillis(doc, "deliveredAt"));
     }
 
     private void updateTimelineCancelled(DocumentSnapshot doc) {
-        // Placed step ✅
-        updateStep(R.id.stepPlaced, "Order Placed", true, doc.getLong("placedAt"));
-        // Pending steps ⏳
-        updateStep(R.id.stepConfirmed, "Order Confirmed", false, doc.getLong("confirmedAt"));
-        updateStep(R.id.stepDispatched, "Dispatched", false, doc.getLong("dispatchedAt"));
-        updateStep(R.id.stepTransit, "In Transit", false, doc.getLong("inTransitAt"));
+        updateStep(R.id.stepPlaced, "Order Placed", true, getTimestampMillis(doc, "placedAt"));
+        updateStep(R.id.stepConfirmed, "Order Confirmed", false, getTimestampMillis(doc, "confirmedAt"));
+        updateStep(R.id.stepDispatched, "Dispatched", false, getTimestampMillis(doc, "dispatchedAt"));
+        updateStep(R.id.stepTransit, "In Transit", false, getTimestampMillis(doc, "inTransitAt"));
 
-        // Cancelled step ❌
         View stepDelivered = findViewById(R.id.stepDelivered);
         ((TextView) stepDelivered.findViewById(R.id.tvStatusTitle)).setText("Cancelled");
         ((ImageView) stepDelivered.findViewById(R.id.imgStatus))
                 .setImageResource(R.drawable.outline_cancel_24);
         stepDelivered.findViewById(R.id.viewLine).setVisibility(View.GONE);
+        Long cancelledTime = getTimestampMillis(doc, "cancelledAt");
         ((TextView) stepDelivered.findViewById(R.id.tvTime))
                 .setText(new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
-                        .format(new Date(doc.getLong("cancelledAt") != null
-                                ? doc.getLong("cancelledAt") : System.currentTimeMillis())));
+                        .format(new Date(cancelledTime != null ? cancelledTime : System.currentTimeMillis())));
     }
 
     private void animateStepWithDelay(int stepId, String title, boolean completed, @Nullable Long time) {
@@ -185,9 +185,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         View line = step.findViewById(R.id.viewLine);
 
         tvTitle.setText(title);
-        imgStatus.setImageResource(
-                completed ? R.drawable.ic_done_green : R.drawable.ic_pending
-        );
+        imgStatus.setImageResource(completed ? R.drawable.ic_done_green : R.drawable.ic_pending);
 
         int color = completed
                 ? ContextCompat.getColor(this, R.color.teal_700)
@@ -202,8 +200,8 @@ public class OrderDetailsActivity extends AppCompatActivity {
         if (completed) animateIcon(imgStatus);
 
         if (time != null) {
-            tvTime.setText(new SimpleDateFormat("dd MMM, hh:mm a",
-                    Locale.getDefault()).format(new Date(time)));
+            tvTime.setText(new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
+                    .format(new Date(time)));
         } else tvTime.setText("");
     }
 
@@ -229,18 +227,39 @@ public class OrderDetailsActivity extends AppCompatActivity {
         ref.update(update)
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this,
-                            "Order cancelled successfully",
-                            Toast.LENGTH_LONG).show();
-
+                    Toast.makeText(this, "Order cancelled successfully", Toast.LENGTH_LONG).show();
                     db.collection("orders").document(currentOrderID).get()
                             .addOnSuccessListener(doc -> updateTimelineCancelled(doc));
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this,
-                            "Failed: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
+    }
+
+    /* ===================== SAFE TIMESTAMP HELPERS ===================== */
+
+    private Long getTimestampMillis(DocumentSnapshot doc, String field) {
+        Object obj = doc.get(field);
+
+        if (obj instanceof Number) {
+            return ((Number) obj).longValue();
+        } else if (obj instanceof Timestamp) {
+            return ((Timestamp) obj).toDate().getTime();
+        } else if (obj instanceof String) {
+            try {
+                return Long.parseLong((String) obj);
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
+    }
+
+    private long getSafeLong(DocumentSnapshot doc, String field, long defaultVal) {
+        Object obj = doc.get(field);
+        if (obj instanceof Number) return ((Number) obj).longValue();
+        if (obj instanceof String) {
+            try { return Long.parseLong((String) obj); } catch (NumberFormatException ignored) {}
+        }
+        return defaultVal;
     }
 }
