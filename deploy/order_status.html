@@ -15,12 +15,6 @@ body {
     color: #333;
 }
 
-h1 {
-    text-align: center;
-    color: #1b5e20;
-    margin: 20px 0;
-}
-
 /* NAV FILTER */
 .nav-filter {
     text-align: center;
@@ -35,79 +29,9 @@ h1 {
     cursor: pointer;
     font-size: 13px;
     background: #e0e0e0;
+    transition: 0.2s;
 }
-
 .nav-filter button:hover { background: #c8e6c9; }
-
-/* CONTAINER */
-.container {
-    width: 95%;
-    margin: auto;
-    background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-    overflow-x: auto;
-}
-
-/* TABLE */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    min-width: 900px;
-}
-
-th, td {
-    padding: 6px 4px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    vertical-align: middle;
-    font-size: 13px;
-    word-wrap: break-word;
-}
-
-th { background: #f1f1f1; font-weight: 600; }
-
-/* Column widths */
-td:nth-child(4), th:nth-child(4), 
-td:nth-child(5), th:nth-child(5), 
-td:nth-child(6), th:nth-child(6) { width: 60px; text-align: center; }
-td:nth-child(7), th:nth-child(7) { width: 140px; }
-td:nth-child(9), th:nth-child(9) { width: 80px; }
-
-/* STATUS */
-.status {
-    padding: 4px 8px;
-    border-radius: 6px;
-    color: #fff;
-    font-size: 12px;
-    display: inline-block;
-}
-
-.pending { background: #ffc107; }
-.confirmed { background: #2196f3; }
-.transit { background: #17a2b8; }
-.delivered { background: #2e7d32; }
-.cancelled { background: #dc3545; }
-
-/* BUTTONS */
-.action-btn {
-    padding: 4px 6px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    color: #fff;
-    font-size: 11px;
-    margin: 1px;
-}
-
-.btn-confirm { background: #2196f3; }
-.btn-transit { background: #17a2b8; }
-.btn-delivered { background: #2e7d32; }
-.btn-cancel { background: #dc3545; }
-
-.action-btn:hover { opacity: 0.9; }
 
 /* ALERT */
 #alert {
@@ -120,31 +44,97 @@ td:nth-child(9), th:nth-child(9) { width: 80px; }
     border-radius: 8px;
     display: none;
     z-index: 1000;
+    transition: 0.3s;
 }
-
 .alert-error { background: #dc3545; }
 
-/* RESPONSIVE FOR SMALL SCREENS */
+/* TABLE CONTAINER */
+.container {
+    width: 95%;
+    margin: auto;
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    overflow-x: auto; /* horizontal scroll for mobile */
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 900px;
+}
+
+th, td {
+    padding: 8px 6px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 13px;
+    word-wrap: break-word;
+}
+
+th { background: #f1f1f1; font-weight: 600; }
+
+/* COLUMN WIDTHS */
+td:nth-child(4), th:nth-child(4), 
+td:nth-child(5), th:nth-child(5), 
+td:nth-child(6), th:nth-child(6) { width: 60px; text-align: center; }
+td:nth-child(7), th:nth-child(7) { width: 140px; }
+td:nth-child(9), th:nth-child(9) { width: 80px; }
+
+/* STATUS STYLES */
+.status {
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    display: inline-block;
+    text-align: center;
+}
+.pending { background: #ffc107; }
+.confirmed { background: #2196f3; }
+.transit { background: #17a2b8; }
+.delivered { background: #2e7d32; }
+.cancelled { background: #dc3545; }
+
+/* ACTION BUTTONS */
+.action-btn {
+    padding: 4px 6px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 11px;
+    margin: 1px;
+    transition: 0.2s;
+}
+.btn-confirm { background: #2196f3; }
+.btn-transit { background: #17a2b8; }
+.btn-delivered { background: #2e7d32; }
+.btn-cancel { background: #dc3545; }
+.action-btn:hover { opacity: 0.85; }
+
+/* MOBILE FIX */
 @media(max-width: 768px){
-    table, thead, tbody, th, td, tr { display: block; }
-    thead tr { display: none; }
-    tr { margin-bottom: 10px; border-bottom: 2px solid #ddd; }
-    td { text-align: right; padding-left: 50%; position: relative; }
-    td::before { 
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        width: 45%;
-        font-weight: bold;
-        text-align: left;
+    .container {
+        overflow-x: auto; /* scrollable table */
+    }
+    table {
+        width: 100%;
+        min-width: 900px; /* match desktop table */
+    }
+    th, td {
+        white-space: nowrap; /* prevent break */
+        font-size: 12px;
     }
 }
 </style>
 </head>
 
 <body>
-
-<!-- <h1>Admin Order Management</h1> -->
 
 <div class="nav-filter">
     <button onclick="setFilter('today')">Today</button>
@@ -176,7 +166,6 @@ td:nth-child(9), th:nth-child(9) { width: 80px; }
 </table>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -227,7 +216,7 @@ function loadOrders() {
     if(dateFilter !== "all") {
         let days = dateFilter === "today" ? 1 : dateFilter;
         let from = new Date();
-        from.setDate(from.getDate() - days);
+        from.setDate(from.getDate() - days + 1);
         query = query.where("placedAt", ">=", from.getTime());
     }
 

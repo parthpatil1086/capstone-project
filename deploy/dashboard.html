@@ -5,7 +5,7 @@
 <title>Dashboard Overview</title>
 
 <style>
-/* ---------- DASHBOARD STYLES ---------- */
+/* ---------- DASHBOARD STYLES (UNCHANGED) ---------- */
 .section-title {
     font-size: 22px;
     font-weight: 600;
@@ -35,7 +35,7 @@
 
 .card h3 {
     margin: 0;
-    font-size: 20px;
+    font-size: 18px;
     color: #1e5a23;
 }
 
@@ -50,62 +50,103 @@
 
 <body>
 
-<!-- <h2 class="section-title">Dashboard Overview</h2> -->
-
 <div class="cards">
+
     <div class="card">
-        <h3>Current Stock</h3>
-        <p id="stockCount">0</p>
+        <h3>Total Customers</h3>
+        <p id="customerCount">0</p>
     </div>
 
     <div class="card">
-        <h3>Pending Requests</h3>
-        <p id="pendingCount">0</p>
+        <h3>Total Suppliers</h3>
+        <p id="supplierCount">0</p>
     </div>
 
     <div class="card">
-        <h3>Approved Orders</h3>
-        <p id="approvedCount">0</p>
+        <h3>Pending Orders</h3>
+        <p id="pendingOrders">0</p>
     </div>
 
     <div class="card">
         <h3>Delivered Orders</h3>
-        <p id="deliveredCount">0</p>
+        <p id="deliveredOrders">0</p>
     </div>
+
+    <div class="card">
+        <h3>Pending Supplier Requests</h3>
+        <p id="pendingSuppliers">0</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Sales Revenue</h3>
+        <p id="totalRevenue">₹0</p>
+    </div>
+
 </div>
 
-<script>
-/* ---------- DASHBOARD DATA (TEMP / DEMO) ---------- */
-/* Replace these values with Firebase / API later */
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-const dashboardData = {
-    stock: 10,
-    pending: 18,
-    approved: 16,
-    delivered: 12
+<script>
+/* ---------- FIREBASE INIT ---------- */
+const firebaseConfig = {
+    apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
+    authDomain: "capstone-swastik.firebaseapp.com",
+    projectId: "capstone-swastik",
+    storageBucket: "capstone-swastik.appspot.com",
+    messagingSenderId: "178017041601",
+    appId: "1:178017041601:web:342d8cfe9938b6813a6840"
 };
 
-/* ---------- SIMPLE COUNT ANIMATION ---------- */
-function animateValue(id, start, end, duration) {
-    const element = document.getElementById(id);
-    let range = end - start;
-    let current = start;
-    let increment = end > start ? 1 : -1;
-    let stepTime = Math.abs(Math.floor(duration / range));
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    const timer = setInterval(() => {
-        current += increment;
-        element.textContent = current;
-        if (current === end) clearInterval(timer);
-    }, stepTime);
+/* ---------- LOAD DASHBOARD DATA (NO ANIMATION) ---------- */
+function loadDashboard() {
+
+    // Customers
+    db.collection("users").onSnapshot(snap => {
+        document.getElementById("customerCount").textContent = snap.size;
+    });
+
+    // Suppliers
+    db.collection("supplier").onSnapshot(snap => {
+        document.getElementById("supplierCount").textContent = snap.size;
+    });
+
+    // Pending Orders
+    db.collection("orders")
+      .where("status", "==", "Pending")
+      .onSnapshot(snap => {
+        document.getElementById("pendingOrders").textContent = snap.size;
+      });
+
+    // Delivered Orders
+    db.collection("orders")
+      .where("status", "==", "Delivered")
+      .onSnapshot(snap => {
+        document.getElementById("deliveredOrders").textContent = snap.size;
+      });
+
+    // Pending Supplier Requests
+    db.collection("supplier_requests")
+      .where("status", "==", "Pending")
+      .onSnapshot(snap => {
+        document.getElementById("pendingSuppliers").textContent = snap.size;
+      });
+
+    // Total Sales Revenue
+    db.collection("sales_revenue").onSnapshot(snap => {
+        let total = 0;
+        snap.forEach(doc => {
+            total += Number(doc.data().totalAmount || 0);
+        });
+        document.getElementById("totalRevenue").textContent = "₹" + total;
+    });
 }
 
-window.onload = () => {
-    animateValue("stockCount", 0, dashboardData.stock, 800);
-    animateValue("pendingCount", 0, dashboardData.pending, 800);
-    animateValue("approvedCount", 0, dashboardData.approved, 800);
-    animateValue("deliveredCount", 0, dashboardData.delivered, 800);
-};
+loadDashboard();
 </script>
 
 </body>

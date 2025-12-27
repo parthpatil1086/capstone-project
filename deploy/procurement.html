@@ -1,9 +1,7 @@
 <!-- IFRAME-SAFE PROCUREMENT PAGE -->
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -31,11 +29,12 @@ body {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .tab-buttons button {
     padding: 10px 20px;
-    margin: 0 8px;
     border: none;
     border-radius: 8px;
     background: #388e3c;
@@ -43,11 +42,7 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
-}
-
-.tab-buttons button:hover {
-    background: #2e7d32;
+    transition: all 0.3s ease;
 }
 
 .tab-buttons button.active {
@@ -61,8 +56,19 @@ body {
     padding: 25px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 25px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.4s ease;
+    display: none; /* initially hidden */
 }
 
+.card.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Card Titles */
 .card-title {
     font-size: 20px;
     font-weight: 600;
@@ -70,7 +76,7 @@ body {
     color: #2e7d32;
 }
 
-/* Form */
+/* Form Labels */
 label {
     font-weight: 600;
     margin: 10px 0 5px;
@@ -78,6 +84,7 @@ label {
     color: #1b5e20;
 }
 
+/* Inputs & Selects */
 input, select {
     width: 100%;
     padding: 12px;
@@ -102,10 +109,12 @@ input[readonly] {
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .btn:hover {
     background: #2e7d32;
+    transform: scale(1.02);
 }
 
 /* Table */
@@ -136,10 +145,17 @@ table th {
     border: 1px solid #ccc;
     font-size: 15px;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tab-buttons { flex-direction: column; }
+    .card { padding: 20px; }
+    table th, table td { font-size: 14px; padding: 10px; }
+}
 </style>
 
-<!-- <div class="content-wrapper">
-    <h2 class="page-title">Procurement</h2> -->
+<div class="content-wrapper">
+    <h2 class="page-title">Procurement</h2>
 
     <!-- Tabs -->
     <div class="tab-buttons">
@@ -148,7 +164,7 @@ table th {
     </div>
 
     <!-- Add Entry -->
-    <div id="entry" class="card">
+    <div id="entry" class="card show">
         <h3 class="card-title">Add Procurement Entry</h3>
 
         <label>Select Supplier</label>
@@ -173,7 +189,7 @@ table th {
     </div>
 
     <!-- History -->
-    <div id="history" class="card" style="display:none;">
+    <div id="history" class="card">
         <h3 class="card-title">Procurement History</h3>
 
         <input type="text" id="searchInput" placeholder="Search by Supplier / ID / Date...">
@@ -209,25 +225,32 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* Tabs */
+/* Tabs with smooth slide */
 const entryBtn = document.getElementById('entryBtn');
 const historyBtn = document.getElementById('historyBtn');
 const entry = document.getElementById('entry');
 const history = document.getElementById('history');
 
+function showCard(show, hide) {
+    hide.classList.remove('show');
+    setTimeout(() => {
+        hide.style.display = 'none';
+        show.style.display = 'block';
+        setTimeout(() => show.classList.add('show'), 20);
+    }, 200);
+}
+
 entryBtn.onclick = () => {
-    entry.style.display = 'block';
-    history.style.display = 'none';
     entryBtn.classList.add('active');
     historyBtn.classList.remove('active');
+    showCard(entry, history);
 };
 
-historyBtn.onclick = () => {
-    entry.style.display = 'none';
-    history.style.display = 'block';
-    entryBtn.classList.remove('active');
+historyBtn.onclick = async () => {
     historyBtn.classList.add('active');
-    loadHistory();
+    entryBtn.classList.remove('active');
+    showCard(history, entry);
+    await loadHistory();
 };
 
 /* Elements */
@@ -258,31 +281,19 @@ async function loadSuppliers() {
     });
 }
 
-/* Auto-fill */
-dropdown.onchange = () => {
-    supplierIdInput.value = dropdown.value;
-    calculateTotal();
-};
-
+/* Auto-fill & total */
+dropdown.onchange = () => { supplierIdInput.value = dropdown.value; calculateTotal(); };
 supplierIdInput.oninput = () => {
     for (let opt of dropdown.options) {
-        if (opt.value === supplierIdInput.value) {
-            dropdown.value = supplierIdInput.value;
-            calculateTotal();
-            return;
-        }
+        if (opt.value === supplierIdInput.value) { dropdown.value = supplierIdInput.value; calculateTotal(); return; }
     }
 };
-
 quantityInput.oninput = calculateTotal;
-function calculateTotal() {
-    totalInput.value = (Number(quantityInput.value) || 0) * (Number(priceInput.value) || 0);
-}
+function calculateTotal() { totalInput.value = (Number(quantityInput.value)||0) * (Number(priceInput.value)||0); }
 
-/* Add */
+/* Add procurement */
 addBtn.onclick = async () => {
     if (!supplierIdInput.value) return alert("Please select a supplier!");
-
     await addDoc(collection(db, "procurement"), {
         supplierId: supplierIdInput.value,
         supplierName: supplierMap[supplierIdInput.value] || "",
@@ -294,12 +305,11 @@ addBtn.onclick = async () => {
         timestamp: Date.now(),
         userUID: supplierUIDMap[supplierIdInput.value] || ""
     });
-
     alert("Procurement Added! (Status: Pending)");
     loadHistory();
 };
 
-/* History */
+/* Load history */
 async function loadHistory() {
     historyBody.innerHTML = "";
     const snap = await getDocs(query(collection(db, "procurement"), orderBy("timestamp", "desc")));

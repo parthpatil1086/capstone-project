@@ -14,34 +14,36 @@ html, body {
     font-family: "Segoe UI", Arial, sans-serif;
     background: transparent;
     color: #333;
-}
-
-/* ---------- PAGE WRAPPER ---------- */
-.page {
-    padding: 10px;
     height: 100%;
     overflow: hidden;
 }
 
-/* ---------- TITLE ---------- */
+/* PAGE WRAPPER */
+.page {
+    padding: 15px;
+    height: 100%;
+    overflow: auto;
+}
+
+/* TITLE */
 .page-title {
     text-align: center;
     font-size: 22px;
     font-weight: 700;
     color: #1b5e20;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
-/* ---------- TOTAL REVENUE ---------- */
+/* TOTAL REVENUE */
 #totalRevenue {
     text-align: center;
     font-size: 16px;
     font-weight: bold;
-    margin: 5px 0 10px 0;
+    margin: 5px 0 15px 0;
     color: #1b5e20;
 }
 
-/* ---------- ALERT ---------- */
+/* ALERT */
 #alert {
     position: fixed;
     top: 20px;
@@ -53,33 +55,30 @@ html, body {
     display: none;
     z-index: 1000;
 }
+.alert-error { background: #dc3545; }
 
-.alert-error {
-    background: #dc3545;
-}
-
-/* ---------- TABLE CONTAINER ---------- */
+/* TABLE CONTAINER */
 .container {
     width: 100%;
     background: #ffffff;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    overflow-x: auto; /* horizontal scroll if needed */
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    overflow-x: auto; /* horizontal scroll on mobile */
 }
 
-/* ---------- TABLE ---------- */
+/* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 700px; /* ensures columns fit horizontally */
+    min-width: 700px;
 }
 
 th, td {
-    padding: 6px 8px;
+    padding: 8px 10px;
     border-bottom: 1px solid #ddd;
     text-align: left;
-    font-size: 13px;
+    font-size: 14px;
     word-wrap: break-word;
 }
 
@@ -88,30 +87,36 @@ th {
     font-weight: 600;
 }
 
-/* Optional fixed widths for some columns */
+/* FIXED WIDTHS */
 td:nth-child(3), th:nth-child(3) { width: 60px; text-align: center; }
 td:nth-child(4), th:nth-child(4) { width: 70px; text-align: center; }
 td:nth-child(5), th:nth-child(5) { width: 80px; text-align: center; }
 td:nth-child(6), th:nth-child(6) { width: 150px; }
 
-/* ---------- MOBILE TABLE ---------- */
+/* SCROLLBAR */
+.page::-webkit-scrollbar {
+    width: 8px;
+}
+.page::-webkit-scrollbar-thumb {
+    background-color: #1b5e20;
+    border-radius: 4px;
+}
+.page::-webkit-scrollbar-track {
+    background: #f0f5f1;
+}
+
+/* MOBILE FIX */
 @media(max-width: 768px) {
-    table, thead, tbody, th, td, tr { display: block; }
-    thead { display: none; }
-    tr { margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
-    td {
-        text-align: right;
-        padding-left: 50%;
-        position: relative;
-        white-space: normal;
+    .container {
+        overflow-x: auto; /* scrollable table */
     }
-    td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 8px;
-        width: 45%;
-        font-weight: bold;
-        text-align: left;
+    table {
+        width: 100%;
+        min-width: 700px;
+    }
+    th, td {
+        white-space: nowrap; /* prevent breaking */
+        font-size: 12px;
     }
 }
 </style>
@@ -143,7 +148,6 @@ td:nth-child(6), th:nth-child(6) { width: 150px; }
 
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -157,13 +161,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let dateFilter = "all";
-
-function setFilter(val) {
-    dateFilter = val;
-    loadSales();
-}
-
 function showAlert(msg, error=false) {
     const alert = document.getElementById("alert");
     alert.innerText = msg;
@@ -173,17 +170,8 @@ function showAlert(msg, error=false) {
 }
 
 function loadSales() {
-    let q = db.collection("sales_revenue").orderBy("soldAt","desc");
-
-    if (dateFilter !== "all") {
-        const days = dateFilter === "today" ? 1 : dateFilter;
-        const from = new Date();
-        from.setDate(from.getDate() - days + 1);
-        const ts = firebase.firestore.Timestamp.fromDate(from);
-        q = q.where("soldAt", ">=", ts);
-    }
-
-    q.onSnapshot(snapshot => {
+    db.collection("sales_revenue").orderBy("soldAt","desc")
+    .onSnapshot(snapshot => {
         const body = document.getElementById("salesBody");
         body.innerHTML = "";
         let totalRevenue = 0;
@@ -218,7 +206,6 @@ function loadSales() {
     });
 }
 
-/* Initial load */
 loadSales();
 </script>
 

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login</title>
+
+<style>
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f0f5f1;
+    font-family: "Segoe UI", Arial, sans-serif;
+    padding: 15px;
+}
+
+/* ---------- LOGIN BOX ---------- */
+.login-box {
+    background: #fff;
+    padding: 35px;
+    width: 100%;
+    max-width: 340px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.login-box img {
+    width: 90px;
+    margin-bottom: 15px;
+}
+
+.login-box h2 {
+    margin-bottom: 20px;
+    color: #1e5a23;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 12px;
+    background: #1e5a23;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 480px) {
+    .login-box {
+        padding: 25px;
+    }
+
+    .login-box img {
+        width: 70px;
+    }
+
+    .login-box h2 {
+        font-size: 20px;
+    }
+
+    .login-box input,
+    .login-box button {
+        font-size: 14px;
+    }
+}
+
+/* ---------- TABLET ---------- */
+@media (min-width: 481px) and (max-width: 768px) {
+    .login-box {
+        max-width: 380px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+    <img src="img/Shree_swastik-removebg-preview.png" alt="Logo">
+    <h2>Admin Login</h2>
+
+    <input type="email" id="email" placeholder="Admin Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <div class="error" id="error"></div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
+    authDomain: "capstone-swastik.firebaseapp.com",
+    projectId: "capstone-swastik"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then(async (cred) => {
+            const adminDoc = await db.collection("admins")
+                .doc(cred.user.uid)
+                .get();
+
+            if (!adminDoc.exists) {
+                await auth.signOut();
+                document.getElementById("error").innerText = "Access denied";
+                return;
+            }
+
+            localStorage.setItem("adminLoggedIn", "true");
+            window.location.href = "index_dashboard.html";
+        })
+        .catch(err => {
+            document.getElementById("error").innerText = err.message;
+        });
+}
+</script>
+
+</body>
+</html>
