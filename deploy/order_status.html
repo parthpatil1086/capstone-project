@@ -170,145 +170,176 @@ td:nth-child(9), th:nth-child(9) { width: 80px; }
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
   authDomain: "capstone-swastik.firebaseapp.com",
   projectId: "capstone-swastik",
-};
-
-firebase.initializeApp(firebaseConfig);
+});
 const db = firebase.firestore();
 
 let dateFilter = "all";
+let unsubscribe = null;
 
-function setFilter(val) {
+/* ---------- HELPERS ---------- */
+
+function setFilter(val){
     dateFilter = val;
     loadOrders();
 }
 
-function showAlert(msg, error=false) {
-    const alert = document.getElementById("alert");
-    alert.innerText = msg;
-    alert.className = error ? "alert-error" : "";
-    alert.style.display = "block";
-    setTimeout(()=>alert.style.display="none",2500);
+function showAlert(msg, error=false){
+    const a = document.getElementById("alert");
+    a.innerText = msg;
+    a.className = error ? "alert-error" : "";
+    a.style.display = "block";
+    setTimeout(()=>a.style.display="none",2500);
 }
 
-function formatDate(ts) {
-    if(!ts) return "-";
-    let d = ts.toDate ? ts.toDate() : new Date(ts);
-    return d.toLocaleString();
+function formatDate(ms){
+    if(!ms) return "-";
+    return new Date(ms).toLocaleString();
 }
 
-function statusClass(status) {
+function statusClass(s){
     return {
-        Pending: "pending",
-        Confirmed: "confirmed",
-        "In Transit": "transit",
-        Delivered: "delivered",
-        Cancelled: "cancelled"
-    }[status] || "pending";
+        Pending:"pending",
+        Confirmed:"confirmed",
+        "In Transit":"transit",
+        Delivered:"delivered",
+        Cancelled:"cancelled"
+    }[s] || "pending";
 }
 
-function loadOrders() {
-    let query = db.collection("orders").orderBy("placedAt","desc");
+/* ---------- LOAD ORDERS (NUMBER BASED DATE FILTER) ---------- */
 
-    if(dateFilter !== "all") {
-        let days = dateFilter === "today" ? 1 : dateFilter;
+function loadOrders(){
+
+    if(unsubscribe) unsubscribe(); // stop previous listener
+
+    let query = db.collection("orders");
+
+    if(dateFilter !== "all"){
         let from = new Date();
-        from.setDate(from.getDate() - days + 1);
-        query = query.where("placedAt", ">=", from.getTime());
+        from.setHours(0,0,0,0);
+
+        if(dateFilter !== "today"){
+            from.setDate(from.getDate() - dateFilter);
+        }
+
+        const fromMillis = from.getTime(); // 🔴 NUMBER COMPARISON
+
+        query = query.where("placedAt", ">=", fromMillis);
     }
 
-    query.onSnapshot(snapshot => {
+    query = query.orderBy("placedAt", "desc");
+
+    unsubscribe = query.onSnapshot(snapshot=>{
         const body = document.getElementById("ordersBody");
         body.innerHTML = "";
 
-        snapshot.forEach(doc => {
+        snapshot.forEach(doc=>{
             const o = doc.data();
-            const id = doc.id;
             const status = o.status || "Pending";
 
             body.innerHTML += `
             <tr>
-                <td data-label="Name">${o.name || "-"}</td>
-                <td data-label="Phone">${o.phone || "-"}</td>
-                <td data-label="Product">${o.productName || "-"}</td>
-                <td data-label="Qty">${o.quantity || 1}</td>
-                <td data-label="Price">₹${o.productPrice || 0}</td>
-                <td data-label="Total">₹${o.totalAmount || ((o.quantity||1)*(o.productPrice||0))}</td>
-                <td data-label="Order Date">${formatDate(o.placedAt)}</td>
-                <td data-label="Address">${o.address || "-"}</td>
-                <td data-label="PIN">${o.pin || "-"}</td>
-                <td data-label="Status"><span class="status ${statusClass(status)}">${status}</span></td>
-                <td data-label="Action">${renderButtons(status,id)}</td>
+                <td>${o.name||"-"}</td>
+                <td>${o.phone||"-"}</td>
+                <td>${o.productName||"-"}</td>
+                <td>${o.quantity||1}</td>
+                <td>₹${o.productPrice||0}</td>
+                <td>₹${o.totalAmount||((o.quantity||1)*(o.productPrice||0))}</td>
+                <td>${formatDate(o.placedAt)}</td>
+                <td>${o.address||"-"}</td>
+                <td>${o.pin||"-"}</td>
+                <td><span class="status ${statusClass(status)}">${status}</span></td>
+                <td>${renderButtons(status,doc.id)}</td>
             </tr>`;
         });
     });
 }
 
-function renderButtons(status,id) {
-    if(status==="Delivered" || status==="Cancelled") return "";
+/* ---------- BUTTONS ---------- */
+
+function renderButtons(status,id){
+    if(status==="Delivered"||status==="Cancelled") return "";
     if(status==="Pending")
         return `<button class="action-btn btn-confirm" onclick="updateOrder('${id}','Confirmed')">Confirm</button>
                 <button class="action-btn btn-cancel" onclick="updateOrder('${id}','Cancelled')">Cancel</button>`;
     if(status==="Confirmed")
-        return `<button class="action-btn btn-transit" onclick="updateOrder('${id}','In Transit')">Transit</button>
-                <button class="action-btn btn-cancel" onclick="updateOrder('${id}','Cancelled')">Cancel</button>`;
+        return `<button class="action-btn btn-transit" onclick="updateOrder('${id}','In Transit')">Transit</button>`;
     if(status==="In Transit")
         return `<button class="action-btn btn-delivered" onclick="updateOrder('${id}','Delivered')">Delivered</button>`;
 }
 
-async function updateOrder(id, newStatus) {
-    const now = firebase.firestore.Timestamp.now(); 
-    let data = { status: newStatus };
+/* ---------- UPDATE ORDER (NO CHANGE NEEDED) ---------- */
 
-    if(newStatus === "Confirmed") data.confirmedAt = now;
-    if(newStatus === "In Transit") data.inTransitAt = now;
-    if(newStatus === "Delivered") data.deliveredAt = now;
-    if(newStatus === "Cancelled") data.cancelledAt = now;
+async function updateOrder(id,newStatus){
+    const now = firebase.firestore.Timestamp.now();
+    let data = {status:newStatus};
 
-    try {
-        const orderDoc = await db.collection("orders").doc(id).get();
-        const order = orderDoc.data();
-        if(!order) throw new Error("Order not found");
+    if(newStatus==="Confirmed") data.confirmedAt=now;
+    if(newStatus==="In Transit") data.inTransitAt=now;
+    if(newStatus==="Delivered") data.deliveredAt=now;
+    if(newStatus==="Cancelled") data.cancelledAt=now;
 
-        await db.collection("orders").doc(id).update(data);
+    try{
+        const ref = db.collection("orders").doc(id);
+        const snap = await ref.get();
+        const order = snap.data();
 
-        if(order.productId && (newStatus === "Confirmed" || newStatus === "Delivered")) {
-            const productRef = db.collection("products").doc(order.productId);
-            await db.runTransaction(async (transaction) => {
-                const prodDoc = await transaction.get(productRef);
-                if(!prodDoc.exists) throw "Product not found!";
-                const currentQty = prodDoc.data().quantity || 0;
-                transaction.update(productRef, { quantity: Math.max(0, currentQty - (order.quantity||1)) });
-            });
+        await ref.update(data);
+
+        // 🔥 Reduce stock ONLY when Delivered (price stays STRING)
+if (order.productId && newStatus === "Delivered") {
+
+    await db.runTransaction(async (transaction) => {
+
+        const productRef = db.collection("products").doc(order.productId);
+        const productSnap = await transaction.get(productRef);
+
+        if (!productSnap.exists) {
+            throw new Error("Product not found");
         }
 
-        if(newStatus === "Delivered") {
+        // quantity is NUMBER in DB
+        const currentStock = productSnap.data().quantity || 0;
+
+        // order quantity (ensure number)
+        const orderQty = Number(order.quantity || 1);
+
+        if (currentStock < orderQty) {
+            throw new Error("Insufficient stock");
+        }
+
+        transaction.update(productRef, {
+            quantity: currentStock - orderQty
+        });
+    });
+}
+
+
+        if(newStatus==="Delivered"){
             await db.collection("sales_revenue").add({
-                productName: order.productName || "",
-                quantitySold: order.quantity || 1,
-                pricePerUnit: order.productPrice || 0,
-                totalAmount: order.totalAmount || ((order.quantity || 1) * (order.productPrice || 0)),
+                productName: order.productName,
+                quantitySold: Number(order.quantity||1),
+                pricePerUnit: Number(order.productPrice||0),
+                totalAmount: Number(order.totalAmount||0),
                 soldAt: now,
-                buyerName: order.name || "",
-                buyerPhone: order.phone || "",
+                buyerName: order.name,
+                buyerPhone: order.phone,
                 orderId: id
             });
-            showAlert("Order delivered, sales recorded, and stock updated!");
+            showAlert("Delivered ✔ Stock & Sales updated");
         } else {
-            showAlert("Status updated: " + newStatus);
+            showAlert("Status updated: "+newStatus);
         }
-
-        loadOrders();
-    } catch (err) {
-        console.error("Error updating order:", err);
-        showAlert(err.message, true);
+    } catch(e){
+        console.error(e);
+        showAlert("Error updating order",true);
     }
 }
 
-// Initial load
 loadOrders();
 </script>
 

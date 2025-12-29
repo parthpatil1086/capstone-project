@@ -1,13 +1,10 @@
 <!-- IFRAME-SAFE STOCK MANAGEMENT PAGE -->
-
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
-    padding: 0;
+    padding: 20px;
     font-family: Arial, sans-serif;
     background: transparent;
 }
@@ -28,7 +25,6 @@ body {
     justify-content: center;
     flex-wrap: wrap;
 }
-
 .tab-buttons button {
     padding: 12px 20px;
     font-size: 16px;
@@ -40,7 +36,6 @@ body {
     color: #2e7d32;
     transition: 0.3s;
 }
-
 .tab-buttons button.active {
     background: #43a047;
     color: #ffffff;
@@ -55,10 +50,7 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     margin-bottom: 25px;
 }
-
-.section.active {
-    display: block;
-}
+.section.active { display: block; }
 
 /* Tables */
 table {
@@ -66,7 +58,6 @@ table {
     border-collapse: collapse;
     margin-top: 10px;
 }
-
 table th, table td {
     padding: 12px;
     text-align: left;
@@ -74,28 +65,9 @@ table th, table td {
     font-size: 14px;
     color: #2e7d32;
 }
-
-table th {
-    background: #a5d6a7;
-    font-weight: 600;
-}
-
-/* Cards */
-.card {
-    background: #f1f8e9;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
+table th { background: #a5d6a7; font-weight: 600; }
 
 /* Inputs */
-label {
-    display: block;
-    font-weight: bold;
-    margin-top: 10px;
-    color: #2e7d32;
-}
-
 input, select {
     width: 100%;
     padding: 10px;
@@ -103,8 +75,8 @@ input, select {
     border: 1px solid #a5d6a7;
     border-radius: 6px;
     font-size: 14px;
+    box-sizing: border-box;
 }
-
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -120,19 +92,9 @@ button {
     cursor: pointer;
     font-weight: bold;
 }
-
-button:hover {
-    opacity: 0.9;
-}
-
-.editBtn {
-    background: #66bb6a;
-    color: #ffffff;
-}
-
-.editBtn.update {
-    background: #2e7d32;
-}
+button:hover { opacity: 0.9; }
+.editBtn { background: #66bb6a; color: #ffffff; }
+.editBtn.update { background: #2e7d32; }
 
 /* Editable description */
 .descEditable {
@@ -140,27 +102,27 @@ button:hover {
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #a5d6a7;
-    min-height: 40px;
+    min-height: 60px;
     font-size: 14px;
     color: #2e7d32;
     white-space: pre-wrap;
     overflow-wrap: break-word;
+    width: 100%;
+    box-sizing: border-box;
 }
-
 .descEditable[contenteditable="true"] {
     border-color: #43a047;
     outline: none;
+    min-height: 80px;
 }
 
 /* Responsive */
 @media(max-width:768px) {
-    .tab-buttons {
-        flex-direction: column;
-    }
+    .tab-buttons { flex-direction: column; }
+    table th, table td { font-size:12px; }
+    input { font-size:12px; }
 }
 </style>
-
-<!-- <h2 class="page-title">Stock Management</h2> -->
 
 <!-- Tabs -->
 <div class="tab-buttons">
@@ -187,16 +149,18 @@ button:hover {
 <!-- Update Stock -->
 <div id="update" class="section">
     <h3>Update Stock</h3>
-
-    <label>Select Product</label>
-    <select id="productSelect">
-        <option value="">-- Select Product --</option>
-    </select>
-
-    <label>Available Quantity</label>
-    <input type="number" id="quantity" placeholder="Enter new quantity">
-
-    <button onclick="updateStockProduct()">Update Quantity</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Price per Unit</th>
+                <th>Available Quantity</th>
+                <th>Add Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="updateStockBody"></tbody>
+    </table>
 </div>
 
 <!-- Edit Product Info -->
@@ -218,7 +182,6 @@ const firebaseConfig = {
     messagingSenderId: "178017041601",
     appId: "1:178017041601:web:342d8cfe9938b6813a6840"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -226,7 +189,6 @@ const db = firebase.firestore();
 function showSection(section) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
-
     document.getElementById(section).classList.add('active');
     document.getElementById(section + 'Btn').classList.add('active');
 }
@@ -235,7 +197,6 @@ function showSection(section) {
 function loadStockOverview() {
     const tbody = document.getElementById('stockBody');
     tbody.innerHTML = '';
-
     db.collection('products').orderBy('name').get().then(snapshot => {
         snapshot.forEach(doc => {
             const d = doc.data();
@@ -249,59 +210,57 @@ function loadStockOverview() {
     });
 }
 
-/* Product dropdown */
-function loadProductDropdown() {
-    const select = document.getElementById('productSelect');
-    select.innerHTML = '<option value="">-- Select Product --</option>';
-
+/* Update Stock Table */
+function loadUpdateStockTable() {
+    const tbody = document.getElementById('updateStockBody');
+    tbody.innerHTML = '';
     db.collection('products').orderBy('name').get().then(snapshot => {
         snapshot.forEach(doc => {
-            const opt = document.createElement('option');
-            opt.value = doc.id;
-            opt.text = doc.data().name;
-            select.appendChild(opt);
+            const d = doc.data();
+            tbody.innerHTML += `
+                <tr>
+                    <td>${d.name}</td>
+                    <td>${d.price || ''}</td>
+                    <td id="stock-${doc.id}">${d.quantity || 0}</td>
+                    <td><input type="number" id="add-${doc.id}" min="0" value="0"></td>
+                    <td><button onclick="updateStockProduct('${doc.id}')">Update</button></td>
+                </tr>`;
         });
     });
 }
 
-/* Auto fill quantity */
-document.getElementById('productSelect').addEventListener('change', function () {
-    if (!this.value) {
-        document.getElementById('quantity').value = '';
-        return;
-    }
-    db.collection('products').doc(this.value).get().then(doc => {
-        if (doc.exists) document.getElementById('quantity').value = doc.data().quantity || 0;
+/* Update stock function */
+function updateStockProduct(id) {
+    const input = document.getElementById(`add-${id}`);
+    const addQty = Number(input.value || 0);
+    if(addQty <= 0) return alert('Enter a valid quantity');
+
+    const stockCell = document.getElementById(`stock-${id}`);
+    db.collection('products').doc(id).get().then(doc => {
+        if(!doc.exists) return alert('Product not found');
+        const currentQty = Number(doc.data().quantity || 0);
+        const newQty = currentQty + addQty;
+
+        db.collection('products').doc(id).update({ quantity: newQty })
+            .then(() => {
+                stockCell.innerText = newQty;
+                input.value = 0;
+                alert('Stock updated!');
+                loadStockOverview();
+            })
+            .catch(err => alert(err.message));
     });
-});
-
-/* Update quantity */
-function updateStockProduct() {
-    const id = document.getElementById('productSelect').value;
-    if (!id) return alert("Select a product");
-
-    const quantity = parseInt(document.getElementById('quantity').value) || 0;
-
-    db.collection('products').doc(id).update({ quantity })
-        .then(() => {
-            alert("Quantity updated!");
-            loadStockOverview();
-            loadProductDropdown();
-        })
-        .catch(err => alert(err.message));
 }
 
-/* Edit cards */
+/* Edit Product Info Cards */
 function loadEditCards() {
     const container = document.getElementById('editCardsContainer');
     container.innerHTML = '';
-
     db.collection('products').orderBy('name').get().then(snapshot => {
         snapshot.forEach(doc => {
             const d = doc.data();
             const card = document.createElement('div');
             card.className = 'card';
-
             card.innerHTML = `
                 <h3>${d.name}</h3>
                 <label>Price per Unit</label>
@@ -310,13 +269,11 @@ function loadEditCards() {
                 <div class="descEditable" contenteditable="false">${d.description || ''}</div>
                 <button class="editBtn">Edit</button>
             `;
-
             const btn = card.querySelector('.editBtn');
             const price = card.querySelector('.priceInput');
             const desc = card.querySelector('.descEditable');
-
             btn.onclick = () => {
-                if (btn.textContent === 'Edit') {
+                if(btn.textContent === 'Edit') {
                     price.removeAttribute('readonly');
                     desc.contentEditable = 'true';
                     btn.textContent = 'Update';
@@ -332,11 +289,10 @@ function loadEditCards() {
                         btn.textContent = 'Edit';
                         btn.classList.remove('update');
                         loadStockOverview();
-                        loadProductDropdown();
+                        loadUpdateStockTable();
                     });
                 }
             };
-
             container.appendChild(card);
         });
     });
@@ -344,6 +300,6 @@ function loadEditCards() {
 
 /* Init */
 loadStockOverview();
-loadProductDropdown();
+loadUpdateStockTable();
 loadEditCards();
 </script>
