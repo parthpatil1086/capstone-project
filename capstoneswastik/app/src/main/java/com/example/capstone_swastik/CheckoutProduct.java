@@ -2,10 +2,7 @@ package com.example.capstone_swastik;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,12 +12,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CheckoutProduct extends AppCompatActivity {
 
-    TextView textViewProductPrice, textViewProductName,totalprice;
+    TextView textViewProductPrice, textViewProductName, totalprice;
     ImageView imageViewProductimg;
-    EditText editTextQuantity;
-    Button btnNext;
+    TextView textQuantity;
+    Button btnNext, btnPlus, btnMinus;
 
     int productPrice = 0;
+    int quantity = 1;
     final int MAX_QUANTITY = 15;
 
     @Override
@@ -29,21 +27,23 @@ public class CheckoutProduct extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_checkout_product);
 
+        // UI binding
         textViewProductName = findViewById(R.id.textViewProductName);
         textViewProductPrice = findViewById(R.id.textViewProductPrice);
         imageViewProductimg = findViewById(R.id.imageViewProductimg);
-        editTextQuantity = findViewById(R.id.editTextQuantity);
         totalprice = findViewById(R.id.totalprice);
+
+        textQuantity = findViewById(R.id.textQuantity);
+        btnPlus = findViewById(R.id.btnPlus);
+        btnMinus = findViewById(R.id.btnMinus);
         btnNext = findViewById(R.id.btnNext);
 
-        btnNext.setEnabled(false);
-        btnNext.setAlpha(0.5f);
-
+        // Receive data
         String name = getIntent().getStringExtra("name");
         String price = getIntent().getStringExtra("price");
         int img = getIntent().getIntExtra("img", R.drawable.shree_swastik_default);
 
-        textViewProductName.setText(getString(R.string.product_name )+ name);
+        textViewProductName.setText(getString(R.string.product_name) + name);
         textViewProductPrice.setText(getString(R.string.product_price) + price);
         imageViewProductimg.setImageResource(img);
 
@@ -53,53 +53,60 @@ public class CheckoutProduct extends AppCompatActivity {
             productPrice = 0;
         }
 
-        editTextQuantity.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        // Default quantity
+        quantity = 1;
+        textQuantity.setText(String.valueOf(quantity));
+        updateTotal();
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.toString().trim().isEmpty()) {
-                    totalprice.setText("TOTAL PRICE: ₹ 0");
-                    btnNext.setEnabled(false);
-                    btnNext.setAlpha(0.5f);
-                    return;
-                }
+        btnNext.setEnabled(true);
+        btnNext.setAlpha(1f);
 
-                int quantity = Integer.parseInt(s.toString());
-
-                if (quantity > MAX_QUANTITY) {
-                    Toast.makeText(CheckoutProduct.this, R.string.maximum_quantity_allowed_is_15, Toast.LENGTH_SHORT).show();
-                    quantity = MAX_QUANTITY;
-                    editTextQuantity.setText(String.valueOf(MAX_QUANTITY));
-                    editTextQuantity.setSelection(editTextQuantity.getText().length());
-                }
-
-                int total = quantity * productPrice;
-                totalprice.setText("TOTAL PRICE: ₹ " + total);
-
-                btnNext.setEnabled(quantity > 0);
-                btnNext.setAlpha(quantity > 0 ? 1f : 0.5f);
+        // PLUS button
+        btnPlus.setOnClickListener(v -> {
+            if (quantity < MAX_QUANTITY) {
+                quantity++;
+                textQuantity.setText(String.valueOf(quantity));
+                updateTotal();
+            } else {
+                Toast.makeText(this,
+                        R.string.maximum_quantity_allowed_is_15,
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
+        btnMinus.setOnClickListener(v -> {
+            if (quantity > 1) {
+                quantity--;
+                textQuantity.setText(String.valueOf(quantity));
+                updateTotal();
+            } else {
+                Toast.makeText(
+                        this,
+                        "Minimum quantity is 1",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
+
+        // NEXT button
         btnNext.setOnClickListener(view -> {
-            String quantityStr = editTextQuantity.getText().toString().trim();
-            int quantity = quantityStr.isEmpty() ? 0 : Integer.parseInt(quantityStr);
             int totalValue = quantity * productPrice;
 
-            Intent intent = new Intent(getApplicationContext(), Address_fill.class);
+            Intent intent = new Intent(this, Address_fill.class);
             intent.putExtra("quantity", quantity);
             intent.putExtra("totalValue", totalValue);
             intent.putExtra("name", name);
             intent.putExtra("price", productPrice);
             intent.putExtra("img", img);
-            intent.putExtra("productId", getIntent().getStringExtra("productId")); // ✅ Pass productId
-
+            intent.putExtra("productId",
+                    getIntent().getStringExtra("productId"));
 
             startActivity(intent);
         });
+    }
+
+    private void updateTotal() {
+        int total = quantity * productPrice;
+        totalprice.setText("TOTAL PRICE: ₹ " + total);
     }
 }

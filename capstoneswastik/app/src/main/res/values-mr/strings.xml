@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">कॅपस्टोन स्वस्तिक</string>
     <string name="buy">खरेदी करा</string>
     <string name="welcome">स्वागत आहे</string>
     <string name="supplier_section">पुरवठादार विभाग</string>
@@ -28,9 +27,7 @@
     <string name="submit">सबमिट करा</string>
     <string name="view_status">स्थिती पहा</string>
     <string name="become_a_supplier">पुरवठादार बना</string>
-    <string name="register_to_supply_your_sugarcane">
-        तुमचा ऊस पुरवठा करण्यासाठी नोंदणी करा
-    </string>
+    <string name="register_to_supply_your_sugarcane">तुमचा ऊस पुरवठा करण्यासाठी नोंदणी करा</string>
     <string name="register_as_supplier">पुरवठादार म्हणून नोंदणी करा</string>
     <string name="available_products">उपलब्ध उत्पादने</string>
     <string name="buy_now">आत्ता खरेदी करा</string>
@@ -39,55 +36,55 @@
     <string name="back_to_home_page">पुरवठादार पृष्ठावर जा</string>
     <string name="order_summary">ऑर्डर सारांश</string>
     <string name="delivery_address">वितरण पत्ता</string>
-    <string name="proceed_to_farm_visit_request">
-        शेत भेट विनंतीसाठी पुढे जा
-    </string>
-    <string name="error_checking_supplier_status">
-        पुरवठादार स्थिती तपासताना त्रुटी
-    </string>
+    <string name="proceed_to_farm_visit_request">शेत भेट विनंतीसाठी पुढे जा</string>
+    <string name="error_checking_supplier_status">पुरवठादार स्थिती तपासताना त्रुटी</string>
     <string name="product_price">उत्पादनाची किंमत: ₹ </string>
-    <string name="maximum_quantity_allowed_is_15">
-        कमाल परवानगी दिलेले प्रमाण 15 आहे
-    </string>
+    <string name="maximum_quantity_allowed_is_15">कमाल परवानगी दिलेले प्रमाण 15 आहे</string>
     <string name="total_amount">एकूण रक्कम: ₹ </string>
 
+    <!-- Validation & Form Strings -->
     <string name="please_enter_your_name">कृपया तुमचे नाव भरा</string>
     <string name="please_enter_your_phone_number">कृपया मोबाईल क्रमांक भरा</string>
-    <string name="phone_number_must_be_10_digits">
-        मोबाईल क्रमांक 10 अंकी असावा
-    </string>
+    <string name="phone_number_must_be_10_digits">मोबाईल क्रमांक 10 अंकी असावा</string>
     <string name="please_enter_your_address">कृपया पत्ता भरा</string>
     <string name="please_enter_pin_code">कृपया पिन कोड भरा</string>
     <string name="pin_code_must_be_6_digits">पिन कोड 6 अंकी असावा</string>
+    <string name="name_cannot_be_empty">नाव रिक्त राहू नये</string>
+    <string name="enter_valid_10_digit_phone_number">योग्य 10 अंकी मोबाईल क्रमांक भरा</string>
+    <string name="address_cannot_be_empty">पत्ता रिक्त राहू नये</string>
+    <string name="enter_valid_6_digit_pin_code">योग्य 6 अंकी पिन कोड भरा</string>
+    <string name="enter_transaction_id_utr_for_online_payment">ऑनलाइन पेमेंटसाठी Transaction ID (UTR) भरा</string>
+    <string name="please_fill_all_fields">कृपया सर्व माहिती भरा</string>
+    <string name="place_order">ऑर्डर करा</string>
+    <string name="address_updated">पत्ता अद्यतनित झाला</string>
 
+    <!-- QR & Buttons -->
+    <string name="close">बंद करा</string>
+    <string name="full_name">पूर्ण नाव</string>
+    <string name="phone_number">मोबाईल क्रमांक</string>
+    <string name="pin_code">पिन कोड</string>
+    <string name="payment_method">पेमेंट पद्धत</string>
+
+    <!-- Misc -->
     <string name="home">मुख्य पृष्ठ</string>
     <string name="not_available">सध्या उपलब्ध नाही</string>
-
-    <string name="order_has_been_cancelled_successfully">
-        ऑर्डर यशस्वीरित्या रद्द करण्यात आली आहे
-    </string>
-
+    <string name="order_has_been_cancelled_successfully">ऑर्डर यशस्वीरित्या रद्द झाली आहे</string>
     <string name="cancel_order">ऑर्डर रद्द करा</string>
     <string name="pdf_saved_successfully">PDF यशस्वीरित्या सेव्ह झाले</string>
     <string name="go_to_main_page">मुख्य पृष्ठावर जा</string>
-    <string name="registered_your_supplier_id">
-        नोंदणी पूर्ण! तुमचा पुरवठादार आयडी:
-    </string>
+    <string name="registered_your_supplier_id">नोंदणी पूर्ण! तुमचा पुरवठादार आयडी: </string>
     <string name="sugarcane">ऊस</string>
-    <string name="please_fill_all_fields">कृपया सर्व माहिती भरा</string>
-    <string name="request_sent_successfully_get_notify_soon">
-        विनंती यशस्वीरित्या पाठवली आहे. लवकरच सूचना मिळेल
-    </string>
+    <string name="request_sent_successfully_get_notify_soon">विनंती यशस्वीरित्या पाठवली आहे. लवकरच सूचना मिळेल</string>
     <string name="no_requests_found">कोणतीही विनंती आढळली नाही</string>
-    <string name="enter_area_e_g_5_acres">
-        क्षेत्रफळ भरा (उदा. 5 एकर)
-    </string>
-    <string name="enter_months_e_g_10">
-        महिने भरा (उदा. 10)
-    </string>
-    <string name="enter_village_city_district">
-        गाव / शहर / जिल्हा भरा
-    </string>
+    <string name="enter_area_e_g_5_acres">क्षेत्रफळ भरा (उदा. 5 एकर)</string>
+    <string name="enter_months_e_g_10">महिने भरा (उदा. 10)</string>
+    <string name="enter_village_city_district">गाव / शहर / जिल्हा भरा</string>
     <string name="marathi_language">मराठी भाषा</string>
     <string name="back_to_home">मुख्यपृष्ठावर परत</string>
+    <string name="cash_on_delivery">रोख पेमेंट (COD)</string>
+    <string name="online_payment">ऑनलाइन पेमेंट</string>
+    <string name="save_address">पत्ता जतन करा</string>
+    <string name="show_qr_code">QR कोड दाखवा</string>
+    <string name="enter_transaction_id_utr">ट्रान्झॅक्शन आयडी (UTR) भरा</string>
+
 </resources>

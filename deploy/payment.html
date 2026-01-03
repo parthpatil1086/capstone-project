@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payments</title>
+<title>Payments – Sugarcane Supplies</title>
 
 <style>
 * { box-sizing: border-box; }
@@ -21,22 +21,6 @@ html, body {
     height: 100%;
     padding: 20px;
     overflow-y: auto;
-}
-
-/* ---------- TITLE ---------- */
-.page-title {
-    text-align: center;
-    color: #2e7d32;
-    margin-bottom: 20px;
-    font-size: 26px;
-    font-weight: 700;
-}
-
-/* ---------- CONTENT ---------- */
-.content-wrapper {
-    width: 100%;
-    max-width: 1000px;
-    margin: auto;
 }
 
 /* ---------- TABS ---------- */
@@ -110,19 +94,26 @@ button.btn:hover {
     background: #2e7d32;
 }
 
-/* ---------- FILTER ---------- */
-.filter-btns button {
-    margin-right: 10px;
-    padding: 8px 14px;
-    border: none;
+/* ---------- FILTER BUTTONS ---------- */
+.filter-buttons {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.filter-buttons button {
+    padding: 8px 16px;
+    border: 1px solid #388e3c;
+    background: #e8f5e9;
+    color: #1b5e20;
+    font-weight: 600;
     border-radius: 6px;
-    background: #558b2f;
-    color: #fff;
     cursor: pointer;
 }
 
-.filter-btns button:hover {
-    background: #33691e;
+.filter-buttons button.active {
+    background: #388e3c;
+    color: #fff;
 }
 
 /* ---------- TABLE ---------- */
@@ -149,8 +140,6 @@ th {
 <body>
 
 <div class="page">
-
-    <!-- <div class="page-title">Payments – Sugarcane Products & Supplies</div> -->
 
     <div class="content-wrapper">
 
@@ -183,17 +172,14 @@ th {
             <input type="date" id="paymentDate" readonly>
 
             <button id="markPaidBtn" class="btn">Mark as Paid</button>
-            <button id="notifyBtn" class="btn" style="display:none; background:#1976d2;">
-                Send Notification
-            </button>
         </div>
 
         <!-- RECORDS -->
         <div id="recordsCard" class="card" style="display:none;">
             <h2>Payment Records</h2>
 
-            <div class="filter-btns">
-                <button id="allBtn">All</button>
+            <div class="filter-buttons">
+                <button id="allBtn" class="active">All</button>
                 <button id="pendingBtn">Pending</button>
                 <button id="paidBtn">Paid</button>
             </div>
@@ -207,7 +193,6 @@ th {
                         <th>Amount</th>
                         <th>Status</th>
                         <th>Payment Date</th>
-                        <th>Notify</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -217,7 +202,6 @@ th {
     </div>
 </div>
 
-<!-- FIREBASE LOGIC (UNCHANGED) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -252,17 +236,14 @@ recordsTabBtn.onclick = () => {
     loadPayments();
 };
 
-/* ---------- REST OF YOUR ORIGINAL JS ---------- */
-/* NOTHING CHANGED BELOW */
-
+/* ---------- ELEMENTS ---------- */
 const supplierDropdown = document.getElementById("supplierDropdown");
-const billInput = document.getElementById("billNumber");
-const qtyInput = document.getElementById("qty");
-const amountInput = document.getElementById("amount");
-const statusInput = document.getElementById("status");
-const paymentDateInput = document.getElementById("paymentDate");
+const billNumber = document.getElementById("billNumber");
+const qty = document.getElementById("qty");
+const amount = document.getElementById("amount");
+const status = document.getElementById("status");
+const paymentDate = document.getElementById("paymentDate");
 const markPaidBtn = document.getElementById("markPaidBtn");
-const notifyBtn = document.getElementById("notifyBtn");
 const paymentTableBody = document.querySelector("#paymentTable tbody");
 const allBtn = document.getElementById("allBtn");
 const pendingBtn = document.getElementById("pendingBtn");
@@ -271,12 +252,10 @@ const paidBtn = document.getElementById("paidBtn");
 let payments = [];
 let selectedSupplierId = null;
 
-function getRandomNumber(d) {
-    return Math.floor(Math.random() * Math.pow(10,d));
-}
+function random(d){ return Math.floor(Math.random()*Math.pow(10,d)); }
 
-/* LOAD SUPPLIERS */
-async function loadSuppliers() {
+/* ---------- LOAD SUPPLIERS ---------- */
+async function loadSuppliers(){
     supplierDropdown.innerHTML = `<option value="">Select Supplier</option>`;
     const q = query(collection(db,"procurement"), orderBy("timestamp","desc"));
     const snap = await getDocs(q);
@@ -284,7 +263,7 @@ async function loadSuppliers() {
         const d = docSnap.data();
         const option = document.createElement("option");
         option.value = docSnap.id;
-        option.text = `${d.supplierName} (${d.supplierId})`;
+        option.text = `${d.supplierName} (${d.status || "Pending"})`;
         option.dataset.bill = d.billNumber || "";
         option.dataset.qty = d.quantity || "";
         option.dataset.amount = d.totalAmount || "";
@@ -295,46 +274,54 @@ async function loadSuppliers() {
     });
 }
 
-supplierDropdown.onchange = () => {
-    const s = supplierDropdown.selectedOptions[0];
-    if(!s) return;
-    selectedSupplierId = s.value;
-    billInput.value = s.dataset.bill;
-    qtyInput.value = s.dataset.qty;
-    amountInput.value = s.dataset.amount;
-    statusInput.value = s.dataset.status;
-    paymentDateInput.value = new Date().toISOString().split("T")[0];
-    notifyBtn.style.display = (s.dataset.status==="Paid" && s.dataset.notify==="false") ? "block":"none";
+/* ---------- SUPPLIER DROPDOWN CHANGE ---------- */
+supplierDropdown.onchange = async () => {
+    const o = supplierDropdown.selectedOptions[0];
+    if(!o) return;
+    selectedSupplierId = o.value;
+
+    // Auto generate bill if empty
+    if(!o.dataset.bill){
+        const d = new Date();
+        const bill = `BILL-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${selectedSupplierId.substring(0,6)}-${random(6)}`;
+        await updateDoc(doc(db,"procurement",selectedSupplierId),{ billNumber: bill });
+        o.dataset.bill = bill;
+    }
+
+    billNumber.value = o.dataset.bill;
+    qty.value = o.dataset.qty;
+    amount.value = o.dataset.amount;
+    status.value = o.dataset.status;
+    paymentDate.value = new Date().toISOString().split("T")[0];
 };
 
+/* ---------- MARK PAID ---------- */
 markPaidBtn.onclick = async () => {
     if(!selectedSupplierId) return alert("Select supplier");
+
+    // Update status to Paid, set payment date, and auto notify
     await updateDoc(doc(db,"procurement",selectedSupplierId),{
         status:"Paid",
-        paymentDate: new Date().toISOString().split("T")[0],
-        notify:false
+        paymentDate:new Date().toISOString().split("T")[0],
+        notify:true
     });
-    alert("Payment marked as PAID");
+
+    alert("Payment marked as PAID and supplier notified.");
     loadSuppliers();
     loadPayments();
 };
 
-notifyBtn.onclick = async () => {
-    await updateDoc(doc(db,"procurement",selectedSupplierId),{ notify:true });
-    notifyBtn.style.display="none";
-    alert("Supplier Notified");
-    loadPayments();
-};
-
+/* ---------- LOAD PAYMENTS ---------- */
 async function loadPayments(){
     paymentTableBody.innerHTML="";
     payments=[];
     const snap = await getDocs(collection(db,"procurement"));
     snap.forEach(d=>payments.push({...d.data(),id:d.id}));
-    displayPayments(payments);
+    display(payments);
 }
 
-function displayPayments(list){
+/* ---------- DISPLAY TABLE ---------- */
+function display(list){
     paymentTableBody.innerHTML="";
     list.forEach(d=>{
         paymentTableBody.innerHTML+=`
@@ -343,17 +330,23 @@ function displayPayments(list){
             <td>${d.billNumber||""}</td>
             <td>${d.quantity}</td>
             <td>${d.totalAmount}</td>
-            <td>${d.status}</td>
+            <td style="font-weight:600;color:${d.status==="Paid"?"#2e7d32":"#d84315"}">${d.status}</td>
             <td>${d.paymentDate||""}</td>
-            <td>${d.notify?"Yes":"No"}</td>
         </tr>`;
     });
 }
 
-allBtn.onclick = ()=>displayPayments(payments);
-pendingBtn.onclick = ()=>displayPayments(payments.filter(p=>p.status!=="Paid"));
-paidBtn.onclick = ()=>displayPayments(payments.filter(p=>p.status==="Paid"));
+/* ---------- FILTER BUTTON LOGIC ---------- */
+function setActive(btn){
+    [allBtn, pendingBtn, paidBtn].forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+}
 
+allBtn.onclick = ()=>{ setActive(allBtn); display(payments); };
+pendingBtn.onclick = ()=>{ setActive(pendingBtn); display(payments.filter(p=>p.status!=="Paid")); };
+paidBtn.onclick = ()=>{ setActive(paidBtn); display(payments.filter(p=>p.status==="Paid")); };
+
+/* ---------- INITIAL LOAD ---------- */
 loadSuppliers();
 loadPayments();
 </script>

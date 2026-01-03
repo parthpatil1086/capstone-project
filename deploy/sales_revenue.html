@@ -64,22 +64,21 @@ html, body {
     padding: 12px;
     border-radius: 8px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-    overflow-x: auto; /* horizontal scroll on mobile */
+    overflow-x: auto;
 }
 
 /* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 700px;
+    min-width: 900px;
+    text-align: center;
 }
 
 th, td {
-    padding: 8px 10px;
+    padding: 10px;
     border-bottom: 1px solid #ddd;
-    text-align: left;
     font-size: 14px;
-    word-wrap: break-word;
 }
 
 th {
@@ -87,11 +86,35 @@ th {
     font-weight: 600;
 }
 
+td.payment-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.payment-paid {
+    font-weight: bold;
+    color: #1b5e20;
+}
+
+.payment-utr {
+    font-size: 12px;
+    color: #555;
+}
+
+.payment-cod {
+    font-weight: bold;
+    color: #d84315;
+}
+
 /* FIXED WIDTHS */
-td:nth-child(3), th:nth-child(3) { width: 60px; text-align: center; }
-td:nth-child(4), th:nth-child(4) { width: 70px; text-align: center; }
-td:nth-child(5), th:nth-child(5) { width: 80px; text-align: center; }
+td:nth-child(3), th:nth-child(3) { width: 60px; }
+td:nth-child(4), th:nth-child(4) { width: 70px; }
+td:nth-child(5), th:nth-child(5) { width: 80px; }
 td:nth-child(6), th:nth-child(6) { width: 150px; }
+td:nth-child(7), th:nth-child(7) { width: 140px; }
 
 /* SCROLLBAR */
 .page::-webkit-scrollbar {
@@ -107,17 +130,9 @@ td:nth-child(6), th:nth-child(6) { width: 150px; }
 
 /* MOBILE FIX */
 @media(max-width: 768px) {
-    .container {
-        overflow-x: auto; /* scrollable table */
-    }
-    table {
-        width: 100%;
-        min-width: 700px;
-    }
-    th, td {
-        white-space: nowrap; /* prevent breaking */
-        font-size: 12px;
-    }
+    table { min-width: 900px; }
+    th, td { font-size: 12px; white-space: nowrap; }
+    td.payment-cell { flex-direction: column; }
 }
 </style>
 </head>
@@ -140,6 +155,7 @@ td:nth-child(6), th:nth-child(6) { width: 150px; }
                     <th>Price</th>
                     <th>Total</th>
                     <th>Sold At</th>
+                    <th>Payment</th>
                 </tr>
             </thead>
             <tbody id="salesBody"></tbody>
@@ -152,35 +168,28 @@ td:nth-child(6), th:nth-child(6) { width: 150px; }
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig = {
+firebase.initializeApp({
     apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
     authDomain: "capstone-swastik.firebaseapp.com",
     projectId: "capstone-swastik",
-};
+});
 
-firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function showAlert(msg, error=false) {
-    const alert = document.getElementById("alert");
-    alert.innerText = msg;
-    alert.className = error ? "alert-error" : "";
-    alert.style.display = "block";
-    setTimeout(() => alert.style.display = "none", 2500);
-}
-
 function loadSales() {
-    db.collection("sales_revenue").orderBy("soldAt","desc")
-    .onSnapshot(snapshot => {
+    db.collection("sales_revenue")
+      .orderBy("soldAt", "desc")
+      .onSnapshot(snapshot => {
         const body = document.getElementById("salesBody");
         body.innerHTML = "";
         let totalRevenue = 0;
 
         snapshot.forEach(doc => {
             const s = doc.data();
-            const qty = s.quantitySold || 1;
-            const price = s.pricePerUnit || 0;
-            const total = s.totalAmount || (qty * price);
+
+            const qty = Number(s.quantitySold || 1);
+            const price = Number(s.pricePerUnit || 0);
+            const total = Number(s.totalAmount || qty * price);
             totalRevenue += total;
 
             let soldAt = "-";
@@ -190,14 +199,26 @@ function loadSales() {
                     : new Date(s.soldAt).toLocaleString();
             }
 
+            // ✅ PAYMENT INFO BASED ON paymentMode & UTR
+            let paymentHTML = "";
+            if(s.paymentMode === "ONLINE") {
+                paymentHTML = `<div class="payment-cell">
+                    <div class="payment-paid">ONLINE</div>
+                    <div class="payment-utr">UTR: ${s.utr || "-"}</div>
+                </div>`;
+            } else {
+                paymentHTML = `<div class="payment-cell payment-cod">COD</div>`;
+            }
+
             body.innerHTML += `
             <tr>
-                <td data-label="Product Name">${s.productName || "-"}</td>
-                <td data-label="Buyer Name">${s.buyerName || "-"}</td>
-                <td data-label="Qty">${qty}</td>
-                <td data-label="Price">₹${price}</td>
-                <td data-label="Total">₹${total}</td>
-                <td data-label="Sold At">${soldAt}</td>
+                <td>${s.productName || "-"}</td>
+                <td>${s.buyerName || "-"}</td>
+                <td>${qty}</td>
+                <td>₹${price}</td>
+                <td>₹${total}</td>
+                <td>${soldAt}</td>
+                <td>${paymentHTML}</td>
             </tr>`;
         });
 

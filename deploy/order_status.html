@@ -44,7 +44,6 @@ body {
     border-radius: 8px;
     display: none;
     z-index: 1000;
-    transition: 0.3s;
 }
 .alert-error { background: #dc3545; }
 
@@ -56,7 +55,7 @@ body {
     padding: 15px;
     border-radius: 10px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-    overflow-x: auto; /* horizontal scroll for mobile */
+    overflow-x: auto;
 }
 
 /* TABLE */
@@ -92,7 +91,6 @@ td:nth-child(9), th:nth-child(9) { width: 80px; }
     color: #fff;
     font-size: 12px;
     display: inline-block;
-    text-align: center;
 }
 .pending { background: #ffc107; }
 .confirmed { background: #2196f3; }
@@ -109,7 +107,6 @@ td:nth-child(9), th:nth-child(9) { width: 80px; }
     color: #fff;
     font-size: 11px;
     margin: 1px;
-    transition: 0.2s;
 }
 .btn-confirm { background: #2196f3; }
 .btn-transit { background: #17a2b8; }
@@ -119,17 +116,8 @@ td:nth-child(9), th:nth-child(9) { width: 80px; }
 
 /* MOBILE FIX */
 @media(max-width: 768px){
-    .container {
-        overflow-x: auto; /* scrollable table */
-    }
-    table {
-        width: 100%;
-        min-width: 900px; /* match desktop table */
-    }
-    th, td {
-        white-space: nowrap; /* prevent break */
-        font-size: 12px;
-    }
+    table { min-width: 900px; }
+    th, td { white-space: nowrap; font-size: 12px; }
 }
 </style>
 </head>
@@ -210,11 +198,11 @@ function statusClass(s){
     }[s] || "pending";
 }
 
-/* ---------- LOAD ORDERS (NUMBER BASED DATE FILTER) ---------- */
+/* ---------- LOAD ORDERS ---------- */
 
 function loadOrders(){
 
-    if(unsubscribe) unsubscribe(); // stop previous listener
+    if(unsubscribe) unsubscribe();
 
     let query = db.collection("orders");
 
@@ -226,9 +214,7 @@ function loadOrders(){
             from.setDate(from.getDate() - dateFilter);
         }
 
-        const fromMillis = from.getTime(); // 🔴 NUMBER COMPARISON
-
-        query = query.where("placedAt", ">=", fromMillis);
+        query = query.where("placedAt", ">=", from.getTime());
     }
 
     query = query.orderBy("placedAt", "desc");
@@ -248,18 +234,26 @@ function loadOrders(){
                 <td>${o.productName||"-"}</td>
                 <td>${o.quantity||1}</td>
                 <td>₹${o.productPrice||0}</td>
-                <td>₹${o.totalAmount||((o.quantity||1)*(o.productPrice||0))}</td>
+                <td>₹${o.totalAmount||0}</td>
                 <td>${formatDate(o.placedAt)}</td>
                 <td>${o.address||"-"}</td>
                 <td>${o.pin||"-"}</td>
-                <td><span class="status ${statusClass(status)}">${status}</span></td>
+                <td>
+                    <span class="status ${statusClass(status)}">${status}</span>
+                    <div style="font-size:11px;color:#555;margin-top:4px;">
+                        ${o.paymentMode === "ONLINE"
+                            ? `Paid<br>UTR: ${o.utr || "-"}`
+                            : "(COD)"
+                        }
+                    </div>
+                </td>
                 <td>${renderButtons(status,doc.id)}</td>
             </tr>`;
         });
     });
 }
 
-/* ---------- BUTTONS ---------- */
+/* ---------- ACTION BUTTONS ---------- */
 
 function renderButtons(status,id){
     if(status==="Delivered"||status==="Cancelled") return "";
@@ -272,7 +266,7 @@ function renderButtons(status,id){
         return `<button class="action-btn btn-delivered" onclick="updateOrder('${id}','Delivered')">Delivered</button>`;
 }
 
-/* ---------- UPDATE ORDER (NO CHANGE NEEDED) ---------- */
+/* ---------- UPDATE ORDER ---------- */
 
 async function updateOrder(id,newStatus){
     const now = firebase.firestore.Timestamp.now();
@@ -290,46 +284,35 @@ async function updateOrder(id,newStatus){
 
         await ref.update(data);
 
-        // 🔥 Reduce stock ONLY when Delivered (price stays STRING)
-if (order.productId && newStatus === "Delivered") {
-
-    await db.runTransaction(async (transaction) => {
-
-        const productRef = db.collection("products").doc(order.productId);
-        const productSnap = await transaction.get(productRef);
-
-        if (!productSnap.exists) {
-            throw new Error("Product not found");
+        if (order.productId && newStatus === "Delivered") {
+            await db.runTransaction(async (transaction) => {
+                const productRef = db.collection("products").doc(order.productId);
+                const productSnap = await transaction.get(productRef);
+                const currentStock = productSnap.data().quantity || 0;
+                const orderQty = Number(order.quantity || 1);
+                transaction.update(productRef, {
+                    quantity: currentStock - orderQty
+                });
+            });
         }
-
-        // quantity is NUMBER in DB
-        const currentStock = productSnap.data().quantity || 0;
-
-        // order quantity (ensure number)
-        const orderQty = Number(order.quantity || 1);
-
-        if (currentStock < orderQty) {
-            throw new Error("Insufficient stock");
-        }
-
-        transaction.update(productRef, {
-            quantity: currentStock - orderQty
-        });
-    });
-}
-
 
         if(newStatus==="Delivered"){
             await db.collection("sales_revenue").add({
-                productName: order.productName,
-                quantitySold: Number(order.quantity||1),
-                pricePerUnit: Number(order.productPrice||0),
-                totalAmount: Number(order.totalAmount||0),
-                soldAt: now,
-                buyerName: order.name,
-                buyerPhone: order.phone,
-                orderId: id
-            });
+        productName: order.productName,
+        quantitySold: Number(order.quantity || 1),
+        pricePerUnit: Number(order.productPrice || 0),
+        totalAmount: Number(order.totalAmount || 0),
+        soldAt: now,
+
+        buyerName: order.name,
+        buyerPhone: order.phone,
+        orderId: id,
+
+        paymentMode: order.paymentMode || "COD",
+        paymentStatus: order.paymentMode === "ONLINE" ? "Paid" : "COD",
+        utr: order.utr || ""
+    });
+
             showAlert("Delivered ✔ Stock & Sales updated");
         } else {
             showAlert("Status updated: "+newStatus);
