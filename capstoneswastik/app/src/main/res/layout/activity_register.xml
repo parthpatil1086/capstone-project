@@ -16,9 +16,9 @@
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:layout_gravity="center"
-            android:layout_marginTop="85dp"
-            android:src="@drawable/shree_swastik_default"
-            />
+            android:layout_marginTop="60dp"
+            android:src="@drawable/shree_swastik_default" />
+
         <TextView
             android:text="Register"
             android:textSize="32sp"

@@ -13,33 +13,22 @@
 
     <!-- Foreground Scrollable Form -->
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp">
+        android:layout_above="@id/btnSubmitRequest"
+        android:padding="20dp"
+        android:fillViewport="true">
 
         <LinearLayout
-            android:layout_marginTop="90dp"
+            android:layout_marginTop="60dp"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
             android:elevation="10dp"
-
             android:layout_gravity="center_horizontal"
             android:clipToPadding="false">
-
-            <!-- Supplier Name -->
-            <TextView
-                android:id="@+id/tvSupplierWelcome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/welcome"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#2E7D32"
-                android:gravity="center"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="24dp" />
 
             <!-- Title -->
             <TextView
@@ -50,7 +39,6 @@
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#2E7D32"
-                android:gravity="center"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="20dp" />
 
@@ -66,16 +54,14 @@
                 android:id="@+id/etProductName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/sugarcane"
                 android:text="@string/sugarcane"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/black"
                 android:enabled="false"
                 android:focusable="false"
+                android:textColor="@android:color/black"
                 android:background="@drawable/rounded_edittext"
                 android:layout_marginBottom="20dp" />
 
-            <!-- Area of Field -->
+            <!-- Area -->
             <TextView
                 android:text="@string/area_of_field_in_acres"
                 android:textColor="#1B5E20"
@@ -89,8 +75,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_area_e_g_5_acres"
                 android:inputType="numberDecimal"
+                android:textColorHint="#928B8B"
                 android:textColor="@android:color/black"
-                android:textColorHint="@android:color/black"
                 android:background="@drawable/rounded_edittext"
                 android:layout_marginBottom="20dp" />
 
@@ -108,8 +94,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_months_e_g_10"
                 android:inputType="number"
+                android:textColorHint="#928B8B"
                 android:textColor="@android:color/black"
-                android:textColorHint="@android:color/black"
                 android:background="@drawable/rounded_edittext"
                 android:layout_marginBottom="20dp" />
 
@@ -123,45 +109,72 @@
 
             <EditText
                 android:id="@+id/etLocation"
+                android:textColorHint="#928B8B"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_village_city_district"
-                android:inputType="text"
                 android:textColor="@android:color/black"
-                android:textColorHint="@android:color/black"
                 android:background="@drawable/rounded_edittext"
                 android:layout_marginBottom="20dp" />
 
+            <!-- Upload Photo -->
+            <TextView
+                android:text="Upload Field Photo"
+                android:textColor="#1B5E20"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Selected Image Name -->
+            <TextView
+                android:id="@+id/tvSelectedImageName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No image selected"
+                android:textColor="#555555"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="10dp" />
+
+            <Button
+                android:id="@+id/btnPickImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Choose Image"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#4CAF50"
+                android:elevation="6dp"
+                android:layout_marginBottom="30dp" />
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- Submit Button -->
     <Button
         android:id="@+id/btnSubmitRequest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/statusbtn"
-        android:layout_marginBottom="5dp"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        android:backgroundTint="#4CAF50"
-        android:elevation="10dp"
+        android:layout_marginBottom="6dp"
         android:text="@string/submit"
+        android:textSize="18sp"
         android:textColor="#FFFFFF"
-        android:textSize="18sp" />
+        android:backgroundTint="#4CAF50"
+        android:elevation="10dp" />
 
+    <!-- Status Button -->
     <Button
         android:id="@+id/statusbtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="25dp"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginTop="5dp"
-        android:textSize="18sp"
+        android:layout_marginBottom="25dp"
         android:text="@string/view_status"
+        android:textSize="18sp"
         android:textColor="#FFFFFF"
         android:backgroundTint="#4CAF50"
         android:elevation="10dp" />

@@ -69,8 +69,6 @@ public class OrderDetailsActivity extends AppCompatActivity {
         btnCancelOrder.setOnClickListener(v -> cancelOrder());
     }
 
-    /* ===================== LOAD ORDER DETAILS ===================== */
-
     private void loadOrderDetails(String orderId) {
         progressBar.setVisibility(View.VISIBLE);
 
@@ -103,8 +101,6 @@ public class OrderDetailsActivity extends AppCompatActivity {
                                 new SimpleDateFormat("dd MMM yyyy, hh:mm a",
                                         Locale.getDefault()).format(new Date(placedTime)));
                     }
-
-                    // ✅ Safe image loading
                     Object imgObj = doc.get("image");
                     if (imgObj instanceof String) {
                         Glide.with(this)
@@ -120,6 +116,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
                     }
 
                     String status = doc.getString("status");
+                    if (status == null) status = "Pending";
 
                     animDelay = 0;
                     if ("Cancelled".equalsIgnoreCase(status)) {
@@ -136,8 +133,6 @@ public class OrderDetailsActivity extends AppCompatActivity {
                     );
                 });
     }
-
-    /* ===================== TIMELINE UPDATES ===================== */
 
     private void updateTimelineAnimated(DocumentSnapshot doc, String status) {
         animateStepWithDelay(R.id.stepPlaced, "Order Placed", true, getTimestampMillis(doc, "placedAt"));
@@ -214,30 +209,30 @@ public class OrderDetailsActivity extends AppCompatActivity {
         anim.start();
     }
 
-    /* ===================== CANCEL ORDER ===================== */
-
     private void cancelOrder() {
         progressBar.setVisibility(View.VISIBLE);
 
         DocumentReference ref = db.collection("orders").document(currentOrderID);
         Map<String, Object> update = new HashMap<>();
-        update.put("status", "Cancelled");
-        update.put("cancelledAt", System.currentTimeMillis());
+        update.put("status", "Cancelled"); // <-- add this line
+        update.put("cancelledAt", new Timestamp(new Date()));
 
         ref.update(update)
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(this, "Order cancelled successfully", Toast.LENGTH_LONG).show();
+                    // Update timeline immediately
                     db.collection("orders").document(currentOrderID).get()
-                            .addOnSuccessListener(doc -> updateTimelineCancelled(doc));
+                            .addOnSuccessListener(doc -> {
+                                updateTimelineCancelled(doc);
+                                btnCancelOrder.setVisibility(View.GONE); // hide button immediately
+                            });
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
-
-    /* ===================== SAFE TIMESTAMP HELPERS ===================== */
 
     private Long getTimestampMillis(DocumentSnapshot doc, String field) {
         Object obj = doc.get(field);

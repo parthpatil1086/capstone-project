@@ -20,6 +20,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     public interface OnOrderClick {
         void onClick(OrderModel order);
+
     }
 
     public OrderAdapter(ArrayList<OrderModel> list, OnOrderClick listener) {

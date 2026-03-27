@@ -45,11 +45,10 @@ public class ViewRequestsActivity extends AppCompatActivity {
     }
 
     private void loadRequests() {
-        progressBar.setVisibility(View.VISIBLE); // show loading
+        progressBar.setVisibility(View.VISIBLE);
 
         String currentUid = auth.getCurrentUser().getUid();
 
-        // Step 1: Get supplierId from supplier collection
         db.collection("supplier")
                 .whereEqualTo("userID", currentUid)
                 .get()
@@ -58,7 +57,6 @@ public class ViewRequestsActivity extends AppCompatActivity {
                         DocumentSnapshot supplierDoc = querySnapshot.getDocuments().get(0);
                         String supplierId = supplierDoc.getString("supplierID");
 
-                        // Step 2: Query supplier_requests using this supplierId
                         db.collection("supplier_requests")
                                 .whereEqualTo("supplierId", supplierId)
                                 .get()
@@ -68,7 +66,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
                                         RequestModel request = new RequestModel(
                                                 doc.getString("productName"),
                                                 doc.getString("areaInAcres"),
-                                                doc.getString("growthMonths"),   // ⭐ ADD
+                                                doc.getString("growthMonths"),
                                                 doc.getString("location"),
                                                 doc.getString("supplierName"),
                                                 doc.getString("status"),
@@ -78,7 +76,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
                                         requestList.add(request);
                                     }
                                     adapter.notifyDataSetChanged();
-                                    progressBar.setVisibility(View.GONE); // hide loading
+                                    progressBar.setVisibility(View.GONE);
 
                                     if (requestList.isEmpty()) {
                                         Toast.makeText(this, R.string.no_requests_found, Toast.LENGTH_SHORT).show();

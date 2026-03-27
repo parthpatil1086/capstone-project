@@ -6,13 +6,17 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +33,8 @@ public class MyOrdersActivity extends AppCompatActivity {
     ArrayList<OrderModel> list;
     OrderAdapter adapter;
 
+    ListenerRegistration registration; // ✅ prevent memory leak
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +48,7 @@ public class MyOrdersActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         list = new ArrayList<>();
+
         adapter = new OrderAdapter(list, order -> {
             Intent i = new Intent(MyOrdersActivity.this, OrderDetailsActivity.class);
             i.putExtra("orderID", order.orderID);
@@ -55,73 +62,103 @@ public class MyOrdersActivity extends AppCompatActivity {
     }
 
     private void loadOrders(TextView tvNoOrders) {
-        progressBar.setVisibility(View.VISIBLE);
-        recyclerOrders.setVisibility(View.GONE);
-        tvNoOrders.setVisibility(View.GONE);
+
+        if (auth.getCurrentUser() == null) {
+            tvNoOrders.setVisibility(View.VISIBLE);
+            tvNoOrders.setText("User not logged in.");
+            return;
+        }
 
         String uid = auth.getCurrentUser().getUid();
 
-        db.collection("orders")
+        progressBar.setVisibility(View.VISIBLE);
+
+        registration = db.collection("orders")
                 .whereEqualTo("userID", uid)
-                .get()
-                .addOnSuccessListener(query -> {
+                .orderBy("placedAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((query, error) -> {
+
+                    if (error != null) {
+                        progressBar.setVisibility(View.GONE);
+                        tvNoOrders.setVisibility(View.VISIBLE);
+                        tvNoOrders.setText("Failed to load orders.");
+                        return;
+                    }
+
                     list.clear();
 
-                    if (query.isEmpty()) {
+                    if (query == null || query.isEmpty()) {
+                        recyclerOrders.setVisibility(View.GONE);
                         tvNoOrders.setVisibility(View.VISIBLE);
                         tvNoOrders.setText("No orders found.");
                     } else {
-                        ArrayList<OrderModel> tempList = new ArrayList<>(); // temporary list
-                        for (DocumentSnapshot doc : query) {
+
+                        for (DocumentSnapshot doc : query.getDocuments()) {
+
                             OrderModel model = new OrderModel();
                             model.orderID = doc.getId();
                             model.productName = doc.getString("productName");
 
-                            Number price = doc.get("productPrice") instanceof Number ? (Number) doc.get("productPrice") : 0;
+                            Number price = doc.get("productPrice") instanceof Number
+                                    ? (Number) doc.get("productPrice") : 0;
                             model.productPrice = price.longValue();
 
-                            Number total = doc.get("totalAmount") instanceof Number ? (Number) doc.get("totalAmount") : 0;
+                            Number total = doc.get("totalAmount") instanceof Number
+                                    ? (Number) doc.get("totalAmount") : 0;
                             model.totalAmount = total.longValue();
 
-                            Number qty = doc.get("quantity") instanceof Number ? (Number) doc.get("quantity") : 1;
+                            Number qty = doc.get("quantity") instanceof Number
+                                    ? (Number) doc.get("quantity") : 1;
                             model.quantity = qty.longValue();
 
-                            // Image handling
                             Object imgObj = doc.get("image");
                             int imageRes = R.drawable.shree_swastik_default;
 
-                            if (imgObj instanceof String) {
-                                String imageName = (String) imgObj;
-                                int resId = getResources().getIdentifier(imageName, "drawable", getPackageName());
-                                if (resId != 0) imageRes = resId;
-                            } else if (imgObj instanceof Number) {
+                            if (imgObj instanceof Number) {
                                 imageRes = ((Number) imgObj).intValue();
                             }
 
                             model.img = imageRes;
 
-                            long time = doc.getLong("timestamp") != null ? doc.getLong("timestamp") : System.currentTimeMillis();
-                            model.date = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-                                    .format(new Date(time));
+                            Long placedTime = null;
 
-                            model.orderStatus = doc.contains("status") ? doc.getString("status") : "Pending";
+                            Object tsObj = doc.get("placedAt");
+                            if (tsObj instanceof Number) {
+                                placedTime = ((Number) tsObj).longValue();
+                            } else if (tsObj instanceof Timestamp) {
+                                placedTime = ((Timestamp) tsObj).toDate().getTime();
+                            }
 
-                            tempList.add(model);
+                            if (placedTime != null) {
+                                model.date = new SimpleDateFormat(
+                                        "dd MMM yyyy, hh:mm a",
+                                        Locale.getDefault()
+                                ).format(new Date(placedTime));
+                            } else {
+                                model.date = "-";
+                            }
+
+                            model.orderStatus = doc.contains("status")
+                                    ? doc.getString("status")
+                                    : "Pending";
+
+                            list.add(model);
                         }
 
-                        // Only update list and notify adapter after all data processed
-                        list.addAll(tempList);
                         adapter.notifyDataSetChanged();
-                        recyclerOrders.setVisibility(View.VISIBLE); // show RecyclerView
+                        recyclerOrders.setVisibility(View.VISIBLE);
+                        tvNoOrders.setVisibility(View.GONE);
                     }
 
                     progressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    tvNoOrders.setVisibility(View.VISIBLE);
-                    tvNoOrders.setText("Failed to load orders.");
                 });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (registration != null) {
+            registration.remove();
+        }
+    }
 }

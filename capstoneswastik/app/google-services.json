@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "178017041601",
+    "firebase_url": "https://capstone-swastik-default-rtdb.firebaseio.com",
     "project_id": "capstone-swastik",
     "storage_bucket": "capstone-swastik.firebasestorage.app"
   },

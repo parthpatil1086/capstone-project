@@ -59,9 +59,11 @@ dependencies {
 
     // iText PDF library
     implementation("com.itextpdf:itextg:5.5.10")
-
+    implementation("com.android.volley:volley:1.2.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    implementation("com.razorpay:checkout:1.6.33")
 }
 

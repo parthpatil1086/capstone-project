@@ -1,17 +1,17 @@
 package com.example.capstone_swastik;
 
-import android.app.Dialog;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -22,14 +22,12 @@ public class Address_fill extends AppCompatActivity {
 
     TextView tvProductName, tvProductPrice, tvQuantity, tvTotalAmount;
     TextView tvPrevName, tvPrevPhone, tvPrevAddress, tvPrevPin;
-
-    EditText etName, etPhone, etAddress, etPin, etUtr;
-
-    Button btnSubmit, btnUseAddress, btnEditAddress, btnShowQr;
-
-    LinearLayout layoutPreviousAddress, layoutOnlinePayment;
-
+    EditText etName, etPhone, etAddress, etPin;
     Spinner spinnerPayment;
+    Button btnSubmit, btnUseAddress, btnEditAddress;
+    LinearLayout layoutOnlinePayment;
+    TextView tvOnlineAmount;
+    LinearLayout layoutPreviousAddress;
 
     FirebaseAuth auth;
     FirebaseFirestore db;
@@ -37,82 +35,70 @@ public class Address_fill extends AppCompatActivity {
     String productName, productId;
     int productPrice, quantity, totalAmount, img;
 
+    String selectedPayment = "COD";
     boolean isEditMode = false;
     String tempAddressDocId = null;
-
-    String selectedPayment = "COD";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_address_fill);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // ====== PRODUCT INFO ======
+        // ===== Bind Views =====
         tvProductName = findViewById(R.id.tvProductName);
         tvProductPrice = findViewById(R.id.tvProductPrice);
         tvQuantity = findViewById(R.id.tvQuantity);
         tvTotalAmount = findViewById(R.id.tvTotalAmount);
 
-        // ====== ADDRESS INPUT ======
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
         etAddress = findViewById(R.id.etAddress);
         etPin = findViewById(R.id.etPin);
-        etUtr = findViewById(R.id.etUtr);
 
-        // ====== BUTTONS ======
+        spinnerPayment = findViewById(R.id.spinnerPayment);
         btnSubmit = findViewById(R.id.btnSubmit);
         btnUseAddress = findViewById(R.id.btnUseAddress);
         btnEditAddress = findViewById(R.id.btnEditAddress);
-        btnShowQr = findViewById(R.id.btnShowQr); // NEW QR BUTTON
 
-        // ====== LAYOUTS ======
         layoutPreviousAddress = findViewById(R.id.layoutPreviousAddress);
-        layoutOnlinePayment = findViewById(R.id.layoutOnlinePayment);
-
-        // ====== SPINNER ======
-        spinnerPayment = findViewById(R.id.spinnerPayment);
-
-        // ====== PREVIOUS ADDRESS TEXT ======
         tvPrevName = findViewById(R.id.tvPrevName);
         tvPrevPhone = findViewById(R.id.tvPrevPhone);
         tvPrevAddress = findViewById(R.id.tvPrevAddress);
         tvPrevPin = findViewById(R.id.tvPrevPin);
 
         layoutPreviousAddress.setVisibility(View.GONE);
-        layoutOnlinePayment.setVisibility(View.GONE);
 
-        // ====== GET INTENT DATA ======
+        // ===== Get Intent Data =====
         Intent i = getIntent();
         productName = i.getStringExtra("name");
         productPrice = i.getIntExtra("price", 0);
         quantity = i.getIntExtra("quantity", 1);
         totalAmount = i.getIntExtra("totalValue", 0);
         productId = i.getStringExtra("productId");
-        img = i.getIntExtra("img", R.drawable.shree_swastik_default);
+        img = i.getIntExtra("img", 0);
 
         tvProductName.setText("Product: " + productName);
         tvProductPrice.setText("Price: ₹" + productPrice);
         tvQuantity.setText("Quantity: " + quantity);
         tvTotalAmount.setText("Total: ₹" + totalAmount);
 
-        // ====== SPINNER SETUP ======
-        String[] paymentOptions = new String[]{getString(R.string.cash_on_delivery), getString(R.string.online_payment)};
+        // ===== Spinner Setup =====
+        String[] options = {"Cash on Delivery", "Online Payment"};
 
-        ArrayAdapter<String> paymentAdapter = new ArrayAdapter<String>(
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_spinner_item,
-                paymentOptions
+                options
         ) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView tv = (TextView) view;
-                tv.setTextColor(Color.BLACK);
+                tv.setTextColor(getResources().getColor(android.R.color.black));
+                tv.setTextSize(16);
                 return view;
             }
 
@@ -120,22 +106,29 @@ public class Address_fill extends AppCompatActivity {
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
-                tv.setTextColor(Color.BLACK);
-                tv.setBackgroundColor(Color.WHITE);
-                tv.setPadding(16, 16, 16, 16);
-                return view;
+                tv.setTextColor(getResources().getColor(android.R.color.black));
+                return tv;
             }
         };
-        spinnerPayment.setAdapter(paymentAdapter);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerPayment.setAdapter(adapter);
+
+
+        layoutOnlinePayment = findViewById(R.id.layoutOnlinePayment);
+        tvOnlineAmount = findViewById(R.id.tvOnlineAmount);
+        layoutOnlinePayment.setVisibility(View.GONE);
+        tvOnlineAmount.setText("Amount to Pay: ₹" + totalAmount);
+
 
         spinnerPayment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 1) {
-                    selectedPayment = "ONLINE";
+                selectedPayment = position == 0 ? "COD" : "ONLINE";
+
+                if (selectedPayment.equals("ONLINE")) {
                     layoutOnlinePayment.setVisibility(View.VISIBLE);
                 } else {
-                    selectedPayment = "COD";
                     layoutOnlinePayment.setVisibility(View.GONE);
                 }
             }
@@ -144,18 +137,86 @@ public class Address_fill extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // ====== LOAD TEMP ADDRESS ======
         loadTempAddress();
 
-        // ====== QR BUTTON CLICK ======
-        btnShowQr.setOnClickListener(v -> showQrDialog());
-
-        // ====== SUBMIT CLICK ======
-        btnSubmit.setOnClickListener(v -> saveAddressOrPlaceOrder());
+        btnSubmit.setOnClickListener(v -> validateAndProceed());
     }
 
-    // ================= LOAD TEMP ADDRESS =================
+    private void validateAndProceed() {
+
+        String name = etName.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
+        String address = etAddress.getText().toString().trim();
+        String pin = etPin.getText().toString().trim();
+
+        if (TextUtils.isEmpty(name)) { etName.setError("Name required"); return; }
+        if (TextUtils.isEmpty(phone) || !phone.matches("\\d{10}")) {
+            etPhone.setError("Enter valid 10 digit phone"); return;
+        }
+        if (TextUtils.isEmpty(address)) { etAddress.setError("Address required"); return; }
+        if (TextUtils.isEmpty(pin) || !pin.matches("\\d{6}")) {
+            etPin.setError("Enter valid 6 digit PIN"); return;
+        }
+
+        saveTempAddress(name, phone, address, pin);
+
+        if (isEditMode) {
+            Toast.makeText(this, "Address Updated Successfully", Toast.LENGTH_SHORT).show();
+            isEditMode = false;
+            btnSubmit.setText("Submit");
+            spinnerPayment.setEnabled(true);
+            loadTempAddress();
+            return;
+        }
+
+        if (selectedPayment.equals("COD")) {
+
+            createOrder("COD", "NA", "Pending");
+
+        } else {
+
+            // Navigate to Razorpay PaymentActivity
+            Intent intent = new Intent(Address_fill.this, PaymentActivity.class);
+            intent.putExtra("amount", totalAmount);
+            startActivityForResult(intent, 101);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 101 && resultCode == RESULT_OK && data != null) {
+
+            String paymentId = data.getStringExtra("paymentId");
+
+            if (paymentId != null) {
+                createOrder("ONLINE", paymentId, "Paid");
+            }
+        }
+    }
+
+    private void saveTempAddress(String name, String phone, String address, String pin) {
+
+        String uid = auth.getCurrentUser().getUid();
+
+        Map<String, Object> temp = new HashMap<>();
+        temp.put("userId", uid);
+        temp.put("name", name);
+        temp.put("phone", phone);
+        temp.put("address", address);
+        temp.put("pin", pin);
+        temp.put("updatedAt", System.currentTimeMillis());
+
+        if (tempAddressDocId != null) {
+            db.collection("temp_address").document(tempAddressDocId).set(temp);
+        } else {
+            db.collection("temp_address").add(temp);
+        }
+    }
+
     private void loadTempAddress() {
+
         String uid = auth.getCurrentUser().getUid();
 
         db.collection("temp_address")
@@ -164,6 +225,7 @@ public class Address_fill extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(qs -> {
                     if (!qs.isEmpty()) {
+
                         var doc = qs.getDocuments().get(0);
                         tempAddressDocId = doc.getId();
 
@@ -186,106 +248,23 @@ public class Address_fill extends AppCompatActivity {
                             etPin.setText(pin);
                         });
 
-                        btnEditAddress.setOnClickListener(v ->
-                                enableEditMode(name, phone, address, pin));
+                        btnEditAddress.setOnClickListener(v -> {
+                            isEditMode = true;
+                            layoutPreviousAddress.setVisibility(View.GONE);
+                            etName.setText(name);
+                            etPhone.setText(phone);
+                            etAddress.setText(address);
+                            etPin.setText(pin);
+                            btnSubmit.setText("Save Address");
+                            spinnerPayment.setEnabled(false);
+                        });
                     }
                 });
     }
 
-    private void enableEditMode(String name, String phone, String address, String pin) {
-        isEditMode = true;
-        layoutPreviousAddress.setVisibility(View.GONE);
-
-        etName.setText(name);
-        etPhone.setText(phone);
-        etAddress.setText(address);
-        etPin.setText(pin);
-
-        btnSubmit.setText(R.string.save_address);
-    }
-
-    private void saveAddressOrPlaceOrder() {
-
-        String name = etName.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
-        String address = etAddress.getText().toString().trim();
-        String pin = etPin.getText().toString().trim();
-        String utr = etUtr.getText().toString().trim();
-
-        // ====== VALIDATION ======
-        if (name.isEmpty()) {
-            etName.setError(getString(R.string.name_cannot_be_empty));
-            etName.requestFocus();
-            return;
-        }
-
-        if (phone.isEmpty() || !phone.matches("\\d{10}")) {
-            etPhone.setError(getString(R.string.enter_valid_10_digit_phone_number));
-            etPhone.requestFocus();
-            return;
-        }
-
-        if (address.isEmpty()) {
-            etAddress.setError(getString(R.string.address_cannot_be_empty));
-            etAddress.requestFocus();
-            return;
-        }
-
-        if (pin.isEmpty() || !pin.matches("\\d{6}")) {
-            etPin.setError(getString(R.string.enter_valid_6_digit_pin_code));
-            etPin.requestFocus();
-            return;
-        }
-
-        if (selectedPayment.equals("ONLINE") && utr.isEmpty()) {
-            etUtr.setError(getString(R.string.enter_transaction_id_utr_for_online_payment));
-            etUtr.requestFocus();
-            return;
-        }
-
-        // ====== SAVE TEMP ADDRESS ======
-        String uid = auth.getCurrentUser().getUid();
-
-        Map<String, Object> tempAddr = new HashMap<>();
-        tempAddr.put("userId", uid);
-        tempAddr.put("name", name);
-        tempAddr.put("phone", phone);
-        tempAddr.put("address", address);
-        tempAddr.put("pin", pin);
-        tempAddr.put("updatedAt", System.currentTimeMillis());
-
-        if (tempAddressDocId != null) {
-            db.collection("temp_address").document(tempAddressDocId)
-                    .set(tempAddr)
-                    .addOnSuccessListener(unused ->
-                            afterAddressSaved(name, phone, address, pin));
-        } else {
-            db.collection("temp_address")
-                    .add(tempAddr)
-                    .addOnSuccessListener(doc -> {
-                        tempAddressDocId = doc.getId();
-                        afterAddressSaved(name, phone, address, pin);
-                    });
-        }
-    }
-
-
-    // ================= CREATE ORDER =================
-    private void afterAddressSaved(String name, String phone,
-                                   String address, String pin) {
-
-        if (isEditMode) {
-            isEditMode = false;
-            btnSubmit.setText(R.string.place_order);
-            loadTempAddress();
-            Toast.makeText(this, R.string.address_updated, Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void createOrder(String paymentMode, String txnId, String paymentStatus) {
 
         String orderId = UUID.randomUUID().toString();
-        String utr = selectedPayment.equals("ONLINE")
-                ? etUtr.getText().toString().trim()
-                : "NA";
 
         Map<String, Object> order = new HashMap<>();
         order.put("orderId", orderId);
@@ -295,44 +274,21 @@ public class Address_fill extends AppCompatActivity {
         order.put("productPrice", productPrice);
         order.put("quantity", quantity);
         order.put("totalAmount", totalAmount);
+        order.put("paymentMode", paymentMode);
+        order.put("paymentStatus", paymentStatus);
+        order.put("transactionId", txnId);
+        order.put("name", etName.getText().toString().trim());
+        order.put("phone", etPhone.getText().toString().trim());
+        order.put("address", etAddress.getText().toString().trim());
+        order.put("pin", etPin.getText().toString().trim());
+        order.put("placedAt", FieldValue.serverTimestamp());
         order.put("image", img);
-        order.put("status", "Pending");
 
-        order.put("paymentMode", selectedPayment);
-        order.put("paymentStatus", selectedPayment.equals("ONLINE") ? "Paid" : "COD");
-        order.put("utr", utr);
-
-        order.put("name", name);
-        order.put("phone", phone);
-        order.put("address", address);
-        order.put("pin", pin);
-        order.put("placedAt", System.currentTimeMillis());
 
         db.collection("orders").add(order)
                 .addOnSuccessListener(doc -> {
-                    Intent intent = new Intent(this, OrderSuccessActivity.class);
-                    intent.putExtra("orderId", orderId);
-                    intent.putExtra("productName", productName);
-                    intent.putExtra("totalAmount", totalAmount);
-                    startActivity(intent);
+                    Toast.makeText(this, "Order Placed Successfully", Toast.LENGTH_LONG).show();
                     finish();
                 });
-    }
-
-    // ================= SHOW QR DIALOG =================
-    private void showQrDialog() {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_qr);
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.setCancelable(true);
-
-        ImageView qrImage = dialog.findViewById(R.id.imgQrDialog);
-        qrImage.setImageResource(R.drawable.qr_code);
-
-        Button btnClose = dialog.findViewById(R.id.btnClose);
-        btnClose.setOnClickListener(v -> dialog.dismiss());
-
-        dialog.show();
     }
 }
