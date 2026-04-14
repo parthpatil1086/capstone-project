@@ -168,8 +168,6 @@ const db = firebase.firestore();
 let dateFilter = "all";
 let unsubscribe = null;
 
-/* ---------- HELPERS ---------- */
-
 function setFilter(val){
     dateFilter = val;
     loadOrders();
@@ -183,9 +181,21 @@ function showAlert(msg, error=false){
     setTimeout(()=>a.style.display="none",2500);
 }
 
-function formatDate(ms){
-    if(!ms) return "-";
-    return new Date(ms).toLocaleString();
+/* ✅ FIXED DATE FORMATTER */
+function formatDate(timestamp){
+    if(!timestamp) return "-";
+
+    // Firestore Timestamp (compat)
+    if (timestamp.toDate) {
+        return timestamp.toDate().toLocaleString();
+    }
+
+    // Firestore Timestamp (seconds format)
+    if (timestamp.seconds) {
+        return new Date(timestamp.seconds * 1000).toLocaleString();
+    }
+
+    return "-";
 }
 
 function statusClass(s){
@@ -198,14 +208,13 @@ function statusClass(s){
     }[s] || "pending";
 }
 
-/* ---------- LOAD ORDERS ---------- */
-
 function loadOrders(){
 
     if(unsubscribe) unsubscribe();
 
     let query = db.collection("orders");
 
+    /* ✅ FIXED FILTER LOGIC */
     if(dateFilter !== "all"){
         let from = new Date();
         from.setHours(0,0,0,0);
@@ -214,7 +223,11 @@ function loadOrders(){
             from.setDate(from.getDate() - dateFilter);
         }
 
-        query = query.where("placedAt", ">=", from.getTime());
+        query = query.where(
+            "placedAt",
+            ">=",
+            firebase.firestore.Timestamp.fromDate(from)
+        );
     }
 
     query = query.orderBy("placedAt", "desc");
@@ -229,20 +242,20 @@ function loadOrders(){
 
             body.innerHTML += `
             <tr>
-                <td>${o.name||"-"}</td>
-                <td>${o.phone||"-"}</td>
-                <td>${o.productName||"-"}</td>
-                <td>${o.quantity||1}</td>
-                <td>₹${o.productPrice||0}</td>
-                <td>₹${o.totalAmount||0}</td>
+                <td>${o.name || "-"}</td>
+                <td>${o.phone || "-"}</td>
+                <td>${o.productName || "-"}</td>
+                <td>${o.quantity || 1}</td>
+                <td>₹${o.productPrice || 0}</td>
+                <td>₹${o.totalAmount || 0}</td>
                 <td>${formatDate(o.placedAt)}</td>
-                <td>${o.address||"-"}</td>
-                <td>${o.pin||"-"}</td>
+                <td>${o.address || "-"}</td>
+                <td>${o.pin || "-"}</td>
                 <td>
                     <span class="status ${statusClass(status)}">${status}</span>
                     <div style="font-size:11px;color:#555;margin-top:4px;">
                         ${o.paymentMode === "ONLINE"
-                            ? `Paid<br>UTR: ${o.utr || "-"}`
+                            ? `Paid<br>Txn: ${o.transactionId || "-"}`
                             : "(COD)"
                         }
                     </div>
@@ -252,8 +265,6 @@ function loadOrders(){
         });
     });
 }
-
-/* ---------- ACTION BUTTONS ---------- */
 
 function renderButtons(status,id){
     if(status==="Delivered"||status==="Cancelled") return "";
@@ -265,8 +276,6 @@ function renderButtons(status,id){
     if(status==="In Transit")
         return `<button class="action-btn btn-delivered" onclick="updateOrder('${id}','Delivered')">Delivered</button>`;
 }
-
-/* ---------- UPDATE ORDER ---------- */
 
 async function updateOrder(id,newStatus){
     const now = firebase.firestore.Timestamp.now();
@@ -298,20 +307,18 @@ async function updateOrder(id,newStatus){
 
         if(newStatus==="Delivered"){
             await db.collection("sales_revenue").add({
-        productName: order.productName,
-        quantitySold: Number(order.quantity || 1),
-        pricePerUnit: Number(order.productPrice || 0),
-        totalAmount: Number(order.totalAmount || 0),
-        soldAt: now,
-
-        buyerName: order.name,
-        buyerPhone: order.phone,
-        orderId: id,
-
-        paymentMode: order.paymentMode || "COD",
-        paymentStatus: order.paymentMode === "ONLINE" ? "Paid" : "COD",
-        utr: order.utr || ""
-    });
+                productName: order.productName,
+                quantitySold: Number(order.quantity || 1),
+                pricePerUnit: Number(order.productPrice || 0),
+                totalAmount: Number(order.totalAmount || 0),
+                soldAt: now,
+                buyerName: order.name,
+                buyerPhone: order.phone,
+                orderId: id,
+                paymentMode: order.paymentMode || "COD",
+                paymentStatus: order.paymentMode === "ONLINE" ? "Paid" : "COD",
+                transactionId: order.transactionId || ""
+            });
 
             showAlert("Delivered ✔ Stock & Sales updated");
         } else {

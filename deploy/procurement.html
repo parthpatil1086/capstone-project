@@ -1,4 +1,4 @@
-<!-- IFRAME-SAFE PROCUREMENT PAGE -->
+
 
 <style>
 * { box-sizing: border-box; }
@@ -10,13 +10,11 @@ body {
     background: transparent;
 }
 
-/* Wrapper */
 .content-wrapper {
     width: 100%;
     padding: 20px;
 }
 
-/* Title */
 .page-title {
     font-size: 26px;
     font-weight: 700;
@@ -24,7 +22,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* Tabs */
 .tab-buttons {
     display: flex;
     justify-content: center;
@@ -49,7 +46,6 @@ body {
     background: #1b5e20;
 }
 
-/* Cards */
 .card {
     background: #ffffff;
     border-radius: 12px;
@@ -59,7 +55,7 @@ body {
     opacity: 0;
     transform: translateY(15px);
     transition: all 0.4s ease;
-    display: none; /* initially hidden */
+    display: none;
 }
 
 .card.show {
@@ -68,7 +64,6 @@ body {
     transform: translateY(0);
 }
 
-/* Card Titles */
 .card-title {
     font-size: 20px;
     font-weight: 600;
@@ -76,7 +71,6 @@ body {
     color: #2e7d32;
 }
 
-/* Form Labels */
 label {
     font-weight: 600;
     margin: 10px 0 5px;
@@ -84,7 +78,6 @@ label {
     color: #1b5e20;
 }
 
-/* Inputs & Selects */
 input, select {
     width: 100%;
     padding: 12px;
@@ -99,7 +92,6 @@ input[readonly] {
     cursor: not-allowed;
 }
 
-/* Button */
 .btn {
     padding: 12px 20px;
     background: #388e3c;
@@ -117,7 +109,6 @@ input[readonly] {
     transform: scale(1.02);
 }
 
-/* Table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -136,7 +127,7 @@ table th {
     background: #dcedc8;
 }
 
-/* Search */
+
 #searchInput {
     width: 100%;
     padding: 10px;
@@ -146,7 +137,7 @@ table th {
     font-size: 15px;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
     .tab-buttons { flex-direction: column; }
     .card { padding: 20px; }
@@ -155,15 +146,12 @@ table th {
 </style>
 
 <div class="content-wrapper">
-    <h2 class="page-title">Procurement</h2>
 
-    <!-- Tabs -->
     <div class="tab-buttons">
         <button id="entryBtn" class="active">Add Entry</button>
         <button id="historyBtn">History</button>
     </div>
 
-    <!-- Add Entry -->
     <div id="entry" class="card show">
         <h3 class="card-title">Add Procurement Entry</h3>
 
@@ -180,7 +168,7 @@ table th {
         <input type="number" id="quantity" min="0">
 
         <label>Price per Unit</label>
-        <input type="number" id="price" value="3500" readonly>
+        <input type="number" id="price" value="3500" >
 
         <label>Total Amount</label>
         <input type="number" id="total" readonly>
@@ -188,7 +176,6 @@ table th {
         <button class="btn" id="addBtn">Add Procurement</button>
     </div>
 
-    <!-- History -->
     <div id="history" class="card">
         <h3 class="card-title">Procurement History</h3>
 
@@ -215,7 +202,6 @@ table th {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* Firebase */
 const firebaseConfig = {
     apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
     authDomain: "capstone-swastik.firebaseapp.com",
@@ -225,7 +211,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* Tabs with smooth slide */
 const entryBtn = document.getElementById('entryBtn');
 const historyBtn = document.getElementById('historyBtn');
 const entry = document.getElementById('entry');
@@ -253,7 +238,6 @@ historyBtn.onclick = async () => {
     await loadHistory();
 };
 
-/* Elements */
 const dropdown = document.getElementById("supplierDropdown");
 const supplierIdInput = document.getElementById("supplierIdInput");
 const quantityInput = document.getElementById("quantity");
@@ -263,11 +247,9 @@ const addBtn = document.getElementById("addBtn");
 const historyBody = document.getElementById("historyBody");
 const searchInput = document.getElementById("searchInput");
 
-/* Maps */
 let supplierMap = {};
 let supplierUIDMap = {};
 
-/* Load suppliers */
 async function loadSuppliers() {
     const snap = await getDocs(collection(db, "supplier"));
     dropdown.innerHTML = `<option value="">Select Supplier</option>`;
@@ -281,7 +263,6 @@ async function loadSuppliers() {
     });
 }
 
-/* Auto-fill & total */
 dropdown.onchange = () => { supplierIdInput.value = dropdown.value; calculateTotal(); };
 supplierIdInput.oninput = () => {
     for (let opt of dropdown.options) {
@@ -291,7 +272,6 @@ supplierIdInput.oninput = () => {
 quantityInput.oninput = calculateTotal;
 function calculateTotal() { totalInput.value = (Number(quantityInput.value)||0) * (Number(priceInput.value)||0); }
 
-/* Add procurement */
 addBtn.onclick = async () => {
     if (!supplierIdInput.value) return alert("Please select a supplier!");
     await addDoc(collection(db, "procurement"), {
@@ -309,7 +289,7 @@ addBtn.onclick = async () => {
     loadHistory();
 };
 
-/* Load history */
+
 async function loadHistory() {
     historyBody.innerHTML = "";
     const snap = await getDocs(query(collection(db, "procurement"), orderBy("timestamp", "desc")));
@@ -329,7 +309,6 @@ async function loadHistory() {
     applyHistorySearch();
 }
 
-/* Search */
 searchInput.oninput = applyHistorySearch;
 function applyHistorySearch() {
     const filter = searchInput.value.toLowerCase();
@@ -338,6 +317,5 @@ function applyHistorySearch() {
     });
 }
 
-/* Init */
 loadSuppliers();
 </script>

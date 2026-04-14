@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,14 +18,12 @@ html, body {
     color: #2e7d32;
 }
 
-/* ---------- PAGE WRAPPER ---------- */
 .page {
     height: 100%;
     overflow-y: auto;
     padding: 15px;
 }
 
-/* ---------- HEADER / SEARCH ---------- */
 .header-container {
     position: sticky;
     top: 0;
@@ -49,7 +48,6 @@ html, body {
     font-size: 1em;
 }
 
-/* ---------- TABLE CONTAINER ---------- */
 .container {
     width: 100%;
     max-width: 1200px;
@@ -97,7 +95,6 @@ h2 {
     padding-bottom: 5px;
 }
 
-/* ---------- BUTTONS ---------- */
 button {
     padding: 5px 12px;
     background: #e53935;
@@ -114,10 +111,8 @@ button:hover {
     transform: scale(1.05);
 }
 
-/* Separate tables visually */
 #customerTable { margin-bottom: 30px; }
 
-/* MOBILE RESPONSIVE */
 @media(max-width: 768px) {
     th, td { font-size: 0.8em; padding: 8px; }
     h2 { font-size: 1.1em; }
@@ -130,14 +125,12 @@ button:hover {
 <div class="page">
 
     <div class="header-container">
-        <!-- <h1>Customer & Supplier List</h1> -->
         <input type="text" id="searchBox" placeholder="Search by name, phone, email...">
     </div>
 
     <div class="container">
         <div class="table-container">
 
-            <!-- Customer Table -->
             <h2>Customer List</h2>
             <table id="customerTable">
                 <thead>
@@ -151,7 +144,6 @@ button:hover {
                 <tbody></tbody>
             </table>
 
-            <!-- Supplier Table -->
             <h2>Supplier List</h2>
             <table id="supplierTable">
                 <thead>
@@ -221,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function loadTables() {
-        // Customer Table
         customerTableBody.innerHTML = "";
         customers.forEach(c => {
             customerTableBody.innerHTML += `
@@ -233,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 </tr>`;
         });
 
-        // Supplier Table
         supplierTableBody.innerHTML = "";
         suppliers.forEach(s => {
             supplierTableBody.innerHTML += `
@@ -267,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Search Filter
     searchBox.addEventListener("keyup", () => {
         const query = searchBox.value.toLowerCase();
         document.querySelectorAll("#supplierTable tbody tr").forEach(row => {
