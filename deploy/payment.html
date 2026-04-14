@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,12 +16,14 @@ html, body {
     background: transparent;
 }
 
+/* ---------- PAGE WRAPPER ---------- */
 .page {
     height: 100%;
     padding: 20px;
     overflow-y: auto;
 }
 
+/* ---------- TABS ---------- */
 .tab-buttons {
     display: flex;
     justify-content: center;
@@ -48,6 +49,7 @@ html, body {
     background: #2e7d32;
 }
 
+/* ---------- CARD ---------- */
 .card {
     background: #fff;
     border-radius: 12px;
@@ -76,6 +78,7 @@ input[readonly] {
     background: #e0f2f1;
 }
 
+/* ---------- BUTTON ---------- */
 button.btn {
     margin-top: 15px;
     padding: 12px 20px;
@@ -91,6 +94,7 @@ button.btn:hover {
     background: #2e7d32;
 }
 
+/* ---------- FILTER BUTTONS ---------- */
 .filter-buttons {
     margin: 15px 0;
     display: flex;
@@ -112,6 +116,7 @@ button.btn:hover {
     color: #fff;
 }
 
+/* ---------- TABLE ---------- */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -138,11 +143,13 @@ th {
 
     <div class="content-wrapper">
 
+        <!-- TABS -->
         <div class="tab-buttons">
             <button id="paymentTabBtn" class="active">Add / Update Payment</button>
             <button id="recordsTabBtn">Payment Records</button>
         </div>
 
+        <!-- ADD PAYMENT -->
         <div id="paymentCard" class="card">
             <label>Supplier</label>
             <select id="supplierDropdown">
@@ -167,6 +174,7 @@ th {
             <button id="markPaidBtn" class="btn">Mark as Paid</button>
         </div>
 
+        <!-- RECORDS -->
         <div id="recordsCard" class="card" style="display:none;">
             <h2>Payment Records</h2>
 
@@ -207,6 +215,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* ---------- UI ---------- */
 const paymentTabBtn = document.getElementById("paymentTabBtn");
 const recordsTabBtn = document.getElementById("recordsTabBtn");
 const paymentCard = document.getElementById("paymentCard");
@@ -227,6 +236,7 @@ recordsTabBtn.onclick = () => {
     loadPayments();
 };
 
+/* ---------- ELEMENTS ---------- */
 const supplierDropdown = document.getElementById("supplierDropdown");
 const billNumber = document.getElementById("billNumber");
 const qty = document.getElementById("qty");
@@ -244,6 +254,7 @@ let selectedSupplierId = null;
 
 function random(d){ return Math.floor(Math.random()*Math.pow(10,d)); }
 
+/* ---------- LOAD SUPPLIERS ---------- */
 async function loadSuppliers(){
     supplierDropdown.innerHTML = `<option value="">Select Supplier</option>`;
     const q = query(collection(db,"procurement"), orderBy("timestamp","desc"));
@@ -263,11 +274,13 @@ async function loadSuppliers(){
     });
 }
 
+/* ---------- SUPPLIER DROPDOWN CHANGE ---------- */
 supplierDropdown.onchange = async () => {
     const o = supplierDropdown.selectedOptions[0];
     if(!o) return;
     selectedSupplierId = o.value;
 
+    // Auto generate bill if empty
     if(!o.dataset.bill){
         const d = new Date();
         const bill = `BILL-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${selectedSupplierId.substring(0,6)}-${random(6)}`;
@@ -282,9 +295,11 @@ supplierDropdown.onchange = async () => {
     paymentDate.value = new Date().toISOString().split("T")[0];
 };
 
+/* ---------- MARK PAID ---------- */
 markPaidBtn.onclick = async () => {
     if(!selectedSupplierId) return alert("Select supplier");
 
+    // Update status to Paid, set payment date, and auto notify
     await updateDoc(doc(db,"procurement",selectedSupplierId),{
         status:"Paid",
         paymentDate:new Date().toISOString().split("T")[0],
@@ -296,6 +311,7 @@ markPaidBtn.onclick = async () => {
     loadPayments();
 };
 
+/* ---------- LOAD PAYMENTS ---------- */
 async function loadPayments(){
     paymentTableBody.innerHTML="";
     payments=[];
@@ -304,6 +320,7 @@ async function loadPayments(){
     display(payments);
 }
 
+/* ---------- DISPLAY TABLE ---------- */
 function display(list){
     paymentTableBody.innerHTML="";
     list.forEach(d=>{
@@ -319,6 +336,7 @@ function display(list){
     });
 }
 
+/* ---------- FILTER BUTTON LOGIC ---------- */
 function setActive(btn){
     [allBtn, pendingBtn, paidBtn].forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
@@ -328,6 +346,7 @@ allBtn.onclick = ()=>{ setActive(allBtn); display(payments); };
 pendingBtn.onclick = ()=>{ setActive(pendingBtn); display(payments.filter(p=>p.status!=="Paid")); };
 paidBtn.onclick = ()=>{ setActive(paidBtn); display(payments.filter(p=>p.status==="Paid")); };
 
+/* ---------- INITIAL LOAD ---------- */
 loadSuppliers();
 loadPayments();
 </script>

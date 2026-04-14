@@ -1,4 +1,4 @@
-
+<!-- IFRAME-SAFE STOCK MANAGEMENT PAGE -->
 <style>
 * { box-sizing: border-box; }
 
@@ -9,6 +9,7 @@ body {
     background: transparent;
 }
 
+/* Page title */
 .page-title {
     font-size: 26px;
     font-weight: 700;
@@ -16,6 +17,7 @@ body {
     margin-bottom: 20px;
 }
 
+/* Tabs */
 .tab-buttons {
     display: flex;
     gap: 10px;
@@ -39,6 +41,7 @@ body {
     color: #ffffff;
 }
 
+/* Sections */
 .section {
     display: none;
     background: #ffffff;
@@ -49,6 +52,7 @@ body {
 }
 .section.active { display: block; }
 
+/* Tables */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -63,6 +67,7 @@ table th, table td {
 }
 table th { background: #a5d6a7; font-weight: 600; }
 
+/* Inputs */
 input, select {
     width: 100%;
     padding: 10px;
@@ -78,6 +83,7 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0;
 }
 
+/* Buttons */
 button {
     margin-top: 15px;
     padding: 10px 20px;
@@ -90,6 +96,7 @@ button:hover { opacity: 0.9; }
 .editBtn { background: #66bb6a; color: #ffffff; }
 .editBtn.update { background: #2e7d32; }
 
+/* Editable description */
 .descEditable {
     background: #f1f8e9;
     padding: 10px;
@@ -109,6 +116,7 @@ button:hover { opacity: 0.9; }
     min-height: 80px;
 }
 
+/* Responsive */
 @media(max-width:768px) {
     .tab-buttons { flex-direction: column; }
     table th, table td { font-size:12px; }
@@ -116,12 +124,14 @@ button:hover { opacity: 0.9; }
 }
 </style>
 
+<!-- Tabs -->
 <div class="tab-buttons">
     <button id="overviewBtn" class="active" onclick="showSection('overview')">Stock Overview</button>
     <button id="updateBtn" onclick="showSection('update')">Update Stock</button>
     <button id="editBtn" onclick="showSection('edit')">Edit Product Info</button>
 </div>
 
+<!-- Stock Overview -->
 <div id="overview" class="section active">
     <h3>Stock Overview</h3>
     <table>
@@ -136,6 +146,7 @@ button:hover { opacity: 0.9; }
     </table>
 </div>
 
+<!-- Update Stock -->
 <div id="update" class="section">
     <h3>Update Stock</h3>
     <table>
@@ -152,6 +163,7 @@ button:hover { opacity: 0.9; }
     </table>
 </div>
 
+<!-- Edit Product Info -->
 <div id="edit" class="section">
     <h3>Edit Product Info</h3>
     <div id="editCardsContainer"></div>
@@ -161,7 +173,7 @@ button:hover { opacity: 0.9; }
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-
+/* Firebase Config */
 const firebaseConfig = {
     apiKey: "AIzaSyAQicAQ6T5YPCpEuSZ19tXBBotA09SQeYA",
     authDomain: "capstone-swastik.firebaseapp.com",
@@ -173,6 +185,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+/* Tabs */
 function showSection(section) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
@@ -180,7 +193,7 @@ function showSection(section) {
     document.getElementById(section + 'Btn').classList.add('active');
 }
 
-
+/* Stock Overview */
 function loadStockOverview() {
     const tbody = document.getElementById('stockBody');
     tbody.innerHTML = '';
@@ -197,6 +210,7 @@ function loadStockOverview() {
     });
 }
 
+/* Update Stock Table */
 function loadUpdateStockTable() {
     const tbody = document.getElementById('updateStockBody');
     tbody.innerHTML = '';
@@ -215,6 +229,7 @@ function loadUpdateStockTable() {
     });
 }
 
+/* Update stock function */
 function updateStockProduct(id) {
     const input = document.getElementById(`add-${id}`);
     const addQty = Number(input.value || 0);
@@ -237,6 +252,7 @@ function updateStockProduct(id) {
     });
 }
 
+/* Edit Product Info Cards */
 function loadEditCards() {
     const container = document.getElementById('editCardsContainer');
     container.innerHTML = '';
@@ -282,8 +298,8 @@ function loadEditCards() {
     });
 }
 
+/* Init */
 loadStockOverview();
 loadUpdateStockTable();
 loadEditCards();
-
 </script>

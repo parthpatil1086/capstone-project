@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,12 +16,14 @@ html, body {
     background: transparent;
 }
 
+/* ---------- PAGE WRAPPER ---------- */
 .page {
     height: 100%;
     padding: 20px;
     overflow-y: auto;
 }
 
+/* ---------- CARD ---------- */
 .card {
     background: #fff;
     padding: 25px;
@@ -35,6 +36,7 @@ h2 {
     color: #333;
 }
 
+/* ---------- TABLE ---------- */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -52,6 +54,7 @@ th {
     background: #f1f1f1;
 }
 
+/* ---------- BUTTONS ---------- */
 .btn {
     padding: 7px 14px;
     border: none;
@@ -59,14 +62,13 @@ th {
     cursor: pointer;
     color: #fff;
     margin-right: 5px;
-    font-size: 13px;
 }
 
 .approve { background: #28a745; }
 .reject  { background: #dc3545; }
 .visit   { background: #007bff; }
-.view    { background: #17a2b8; }
 
+/* ---------- ALERT ---------- */
 .alert-box {
     position: fixed;
     top: 20px;
@@ -80,7 +82,8 @@ th {
 }
 .alert-error { background: #dc3545; }
 
-#visitModal, #imageModal {
+/* ---------- VISIT MODAL ---------- */
+#visitModal {
     display: none;
     position: fixed;
     inset: 0;
@@ -92,39 +95,24 @@ th {
 
 .modal-content {
     background: #fff;
-    padding: 25px 20px;
+    padding: 30px;
+    width: 340px;
     border-radius: 12px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90%;
-    max-width: 400px;
 }
 
 .modal-content input {
     width: 100%;
     padding: 10px;
     margin: 15px 0;
-    font-size: 14px;
-}
-
-.modal-content img {
-    width: 100%;
-    max-width: 400px;
-    max-height: 400px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-bottom: 15px;
 }
 
 .close-btn {
     background: #333;
     color: #fff;
-    padding: 10px 20px;
+    padding: 8px 18px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
 }
 </style>
 </head>
@@ -138,34 +126,32 @@ th {
     <div class="modal-content">
         <h3>Select Visit Date</h3>
         <input type="date" id="visitDate">
+        <br>
         <button class="btn approve" id="sendVisitBtn">Save</button>
         <div class="close-btn" id="closeVisitBtn">Close</div>
     </div>
 </div>
 
-<!-- IMAGE MODAL -->
-<div id="imageModal">
-    <div class="modal-content">
-        <img id="modalImage" src="" alt="Supplier Image">
-        <div class="close-btn" id="closeImageBtn">Close</div>
+<!-- PAGE CONTENT -->
+<div class="page">
+    <!-- <div class="card">
+        <h2>Supplier / Farmer Request Approval</h2> -->
+
+        <table id="requestTable">
+            <tr>
+                <th>Supplier</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Area</th>
+                <th>Months</th>
+                <th>Visit Date</th>
+                <th>Action</th>
+            </tr>
+        </table>
     </div>
 </div>
 
-<div class="page">
-    <table id="requestTable">
-        <tr>
-            <th>Image</th>
-            <th>Supplier</th>
-            <th>Phone</th>
-            <th>Address</th>
-            <th>Area</th>
-            <th>Months</th>
-            <th>Visit Date</th>
-            <th>Action</th>
-        </tr>
-    </table>
-</div>
-
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -179,6 +165,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* ALERT */
 function showAlert(msg, error=false){
     const a = document.getElementById("alert");
     a.innerText = msg;
@@ -187,32 +174,25 @@ function showAlert(msg, error=false){
     setTimeout(()=>a.style.display="none",2500);
 }
 
+/* MODAL */
 let currentId = "";
-const visitModal = document.getElementById("visitModal");
+const modal = document.getElementById("visitModal");
+
 function openVisit(id, date=""){
     currentId = id;
     visitDate.value = date;
-    visitModal.style.display = "flex";
+    modal.style.display = "flex";
 }
-closeVisitBtn.onclick = () => visitModal.style.display="none";
+closeVisitBtn.onclick = () => modal.style.display="none";
 
 sendVisitBtn.onclick = async () => {
     if(!visitDate.value) return showAlert("Select date", true);
     await updateDoc(doc(db,"supplier_requests",currentId),{ visitDate: visitDate.value });
     showAlert("Visit Date Saved");
-    visitModal.style.display="none";
+    modal.style.display="none";
 };
 
-const imageModal = document.getElementById("imageModal");
-const modalImage = document.getElementById("modalImage");
-const closeImageBtn = document.getElementById("closeImageBtn");
-closeImageBtn.onclick = () => imageModal.style.display = "none";
-
-function openImage(url){
-    modalImage.src = url || 'https://via.placeholder.com/400';
-    imageModal.style.display = "flex";
-}
-
+/* DATA */
 const table = document.getElementById("requestTable");
 const q = query(collection(db,"supplier_requests"), orderBy("timestamp","desc"));
 
@@ -224,7 +204,6 @@ onSnapshot(q, snap => {
         const r = document.createElement("tr");
 
         r.innerHTML = `
-        <td><button class="btn view">View</button></td>
         <td>${s.supplierName || "-"}</td>
         <td>${s.supplierPhone || "-"}</td>
         <td>${s.location || "-"}</td>
@@ -239,42 +218,25 @@ onSnapshot(q, snap => {
 
         table.appendChild(r);
 
-        const [viewBtn, approve, reject, visit] = r.querySelectorAll("button");
+        const [approve, reject, visit] = r.querySelectorAll("button");
 
-        viewBtn.onclick = () => openImage(s.imageUrl);
-
-       
-        if(s.status === "Approved"){
+        if(s.status==="Approved"){
             approve.disabled = true;
-            reject.style.display = "inline-block";
             visit.style.display = "inline-block";
-        } else if(s.status === "Rejected"){
-
+        }
+        if(s.status==="Rejected"){
             approve.style.display = "none";
-            reject.style.display = "none";
-            visit.style.display = "none";
-        } else {
-            approve.disabled = false;
-            approve.style.display = "inline-block";
-            reject.style.display = "inline-block";
-            visit.style.display = "none";
+            reject.disabled = true;
         }
 
         approve.onclick = async ()=>{
             await updateDoc(doc(db,"supplier_requests",d.id),{ status:"Approved" });
             showAlert("Approved");
-
-            approve.disabled = true;
-            visit.style.display = "inline-block";
         };
 
         reject.onclick = async ()=>{
             await updateDoc(doc(db,"supplier_requests",d.id),{ status:"Rejected", visitDate:"" });
             showAlert("Rejected", true);
-
-            approve.style.display = "none";
-            reject.style.display = "none";
-            visit.style.display = "none";
         };
 
         visit.onclick = ()=> openVisit(d.id, s.visitDate || "");

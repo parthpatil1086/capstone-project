@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard - ShreeSvastik Agro</title>
+<title>Admin Dashboard - SwastikAgro</title>
 
 <style>
 html, body {
@@ -16,6 +15,7 @@ html, body {
     overflow: hidden;
 }
 
+/* ---------- SIDEBAR ---------- */
 .sidebar {
     width: 260px;
     height: 100vh;
@@ -45,6 +45,7 @@ html, body {
     font-weight: 600;
 }
 
+/* ---------- MAIN ---------- */
 .main-container {
     margin-left: 260px;
     height: 100vh;
@@ -53,6 +54,7 @@ html, body {
     transition: margin-left 0.3s ease;
 }
 
+/* ---------- HEADER ---------- */
 header {
     background: #2b7a33;
     color: white;
@@ -64,12 +66,14 @@ header {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
+/* ---------- HAMBURGER ---------- */
 .menu-btn {
     display: none;
     font-size: 26px;
     cursor: pointer;
 }
 
+/* ---------- ADMIN DROPDOWN ---------- */
 .admin-box {
     cursor: pointer;
     position: relative;
@@ -96,6 +100,7 @@ header {
     background: #f1f1f1;
 }
 
+/* ---------- CONTENT ---------- */
 .content-area {
     flex: 1;
     margin: 15px;
@@ -168,7 +173,7 @@ iframe.show {
         <span class="menu-btn" onclick="toggleSidebar()">☰</span>
         <img src="img/Shree_swastik-removebg-preview.png"
              style="width:45px;height:45px;background:white;border-radius:50%;">
-        <strong>ShreeSvastik Agro</strong>
+        <strong>SwastikAgro</strong>
     </div>
 
     <div class="admin-box" onclick="toggleDropdown()">
@@ -187,16 +192,18 @@ iframe.show {
 </div>
 
 <script>
-
+/* ---------- SESSION CHECK ---------- */
 if (!localStorage.getItem("adminLoggedIn")) {
     window.location.href = "login.html";
 }
 
+/* ---------- LOGOUT ---------- */
 function logout() {
     localStorage.removeItem("adminLoggedIn");
     window.location.href = "login.html";
 }
 
+/* ---------- DROPDOWN ---------- */
 function toggleDropdown() {
     const d = document.getElementById("adminDropdown");
     d.style.display = d.style.display === "block" ? "none" : "block";
@@ -207,10 +214,12 @@ document.addEventListener("click", e => {
     }
 });
 
+/* ---------- SIDEBAR TOGGLE ---------- */
 function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("open");
 }
 
+/* ---------- AUTO CLOSE SIDEBAR ON CLICK ---------- */
 document.addEventListener("click", e => {
     const sidebar = document.getElementById("sidebar");
     const menuBtn = document.querySelector(".menu-btn");
@@ -222,6 +231,7 @@ document.addEventListener("click", e => {
     }
 });
 
+/* ---------- SWIPE GESTURE ---------- */
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -245,6 +255,7 @@ function handleSwipe() {
     }
 }
 
+/* ---------- PAGES ---------- */
 const pages = {
     dashboard:{file:"dashboard.html",name:"Dashboard Overview"},
     procurement:{file:"procurement.html",name:"Procurement"},
@@ -274,6 +285,7 @@ function navigate(page, el) {
     }
 }
 
+/* ---------- LOAD ---------- */
 window.onload = () => navigate("dashboard", document.querySelector(".sidebar a"));
 </script>
 
